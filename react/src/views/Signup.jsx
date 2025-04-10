@@ -1,68 +1,63 @@
-import React, { useRef, useState } from "react";
+import React, { useState, useRef } from "react";
 import { Link } from "react-router-dom";
-import axiosClient from "../axios-client";
 import { useStateContext } from "../contexts/ContextProvider";
+import axiosClient from "../axios-client";
 
-function Signup() {
-  const nameRef = useRef();
+function Login() {
   const emailRef = useRef();
   const passwordRef = useRef();
-  const passwordConfirmationRef = useRef();
-
   const [errors, setErrors] = useState(null);
-  const {setUser, setToken} = useStateContext();
+  const { setUser, setToken } = useStateContext();
 
   const onSubmit = (ev) => {
     ev.preventDefault();
 
     const payload = {
-      name: nameRef.current.value,
       email: emailRef.current.value,
       password: passwordRef.current.value,
-      password_confirmation: passwordConfirmationRef.current.value,
     };
 
-    axiosClient.post('/signup', payload)
-    .then(({data})=>{
-      setUser(data.user);
-      setToken(data.token);
-    })
-    .catch(err=>{
-      const response = err.response;
-      if(response && response.status === 422){
-        console.log(response.data.errors);
-        setErrors(response.data.errors);
-      }
-    })
+    // reset the error when every request is executed
+    setErrors(null);
 
+    axiosClient
+      .post("/login", payload)
+      .then(({ data }) => {
+        setUser(data.user);
+        setToken(data.token);
+      })
+      .catch((err) => {
+        const response = err.response;
+        if (response && response.status === 422) {
+          if (response.data.errors) {
+            setErrors(response.data.errors);
+          }
+          else{
+            setErrors({
+              email: [response.data.message]
+            })
+          }
+        }
+      });
   };
+
   return (
     <div className="login-signup-form animated fadeInDown">
       <div className="form">
         <form onSubmit={onSubmit}>
-          <h1 className="title">Signup For Free</h1>
-          {
-            errors && <div className="alert">
-              {
-                Object.keys(errors).map(key=>(
-                  <p key={key}>{errors[key][0]}</p>
-                ))
-              }
+          <h1 className="title">Login Into Your Account</h1>
+          {errors && (
+            <div className="alert">
+              {Object.keys(errors).map((key) => (
+                <p key={key}>{errors[key][0]}</p>
+              ))}
             </div>
-          }
-
-          <input ref={nameRef} type="text" placeholder="Fullname" />
-          <input ref={emailRef} type="email" placeholder="Email Adress" />
+          )}
+          <input ref={emailRef} type="email" placeholder="Email" />
           <input ref={passwordRef} type="password" placeholder="Password" />
-          <input
-            ref={passwordConfirmationRef}
-            type="password"
-            placeholder="Password Confirmation"
-          />
-
-          <button type="submit" className="btn btn-block">Signup</button>
+          <button className="btn btn-block">Login</button>
           <p className="message">
-            Already Registered? <Link to="/login"> Sing in </Link>
+            Not Registered? <Link to="/signup"> Create an account </Link>
           </p>
         </form>
       </div>
@@ -70,4 +65,4 @@ function Signup() {
   );
 }
 
-export default Signup;
+export default Login;
