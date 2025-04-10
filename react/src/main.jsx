@@ -1,10 +1,13 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.jsx'
+// src/main.jsx
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './styles.css';
+// import StudentList from './pages/StudentList';
+console.log("Hello World");
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+const App = () => {
+  // return <StudentList />;
+  return <h1>Hello World</h1>;
+};
+
+ReactDOM.createRoot(document.getElementById('app')).render(<App />);
