@@ -21,8 +21,5 @@ class Filiere extends Model
         return $this->hasMany(Module::class);
     }
 
-    public function controles()
-    {
-        return $this->hasMany(Controle::class);
-    }
+ 
 }

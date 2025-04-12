@@ -24,4 +24,9 @@ class Module extends Model
     {
         return $this->hasMany(Examen::class);
     }
+    
+    public function soutenance()
+    {
+        return $this->hasOne(Soutenance::class);
+    }
 }
