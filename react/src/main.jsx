@@ -5,11 +5,10 @@ import router from './router.jsx'
 import { ContexteProvider } from './contexts/ContextProvider.jsx';
 import './index.css'
 
-
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ContexteProvider >
-      <RouterProvider router={router} />
+      <RouterProvider router={router} />    
     </ContexteProvider>
   </StrictMode>,
 )

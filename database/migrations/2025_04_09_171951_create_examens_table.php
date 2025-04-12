@@ -16,7 +16,7 @@ return new class extends Migration
             // Type d'examen : 'theorique' ou 'pratique'
             $table->enum('type', ['theorique', 'pratique']);
             
-            // $table->foreignId('etudiant_id')->constrained('etudiants')->onDelete('cascade');
+            $table->foreignId('etudiant_id')->constrained('etudiants')->onDelete('cascade');
             // Référence au module concerné
             $table->foreignId('module_id')->constrained('modules')->onDelete('cascade');
             // Année scolaire sous le format 'YYYY-YYYY'

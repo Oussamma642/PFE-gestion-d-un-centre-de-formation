@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('resultat_examens', function (Blueprint $table) {
+            $table->id();
+
             // On utilise directement les clés étrangères sans auto-increment d'un id
             $table->foreignId('examen_id')->constrained('examens')->onDelete('cascade');
             $table->foreignId('etudiant_id')->constrained('etudiants')->onDelete('cascade');
             $table->decimal('note', 4, 2);
             $table->timestamps();
 
-            // Clé primaire composite pour assurer l'unicité par examen et étudiant
-            $table->primary(['examen_id', 'etudiant_id']);
         });
     }
 

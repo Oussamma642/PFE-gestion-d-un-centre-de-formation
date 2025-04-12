@@ -1,5 +1,3 @@
-
-
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -15,8 +13,9 @@ return new class extends Migration
             
             $table->string('libelle', 100);
             $table->integer('coefficient');
-            $table->integer('annee');
-            $table->integer('semestre');
+            $table->integer('masse_horaire');
+            $table->enum('annee', ['première_annee', 'deuxième_annee']);
+            $table->enum('semestre', ['Mars', 'Juillet']);
             $table->string('annee_scolaire', 9);
             $table->foreignId('filiere_id')->constrained('filieres');
             $table->timestamps();

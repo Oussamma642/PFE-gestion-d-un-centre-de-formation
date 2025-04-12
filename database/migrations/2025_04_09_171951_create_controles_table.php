@@ -1,4 +1,3 @@
-
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -12,8 +11,8 @@ return new class extends Migration
     {
         Schema::create('controles', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('filiere_id')->constrained('filieres')->onDelete('cascade');
-            $table->foreignId('module_id')->constrained('modules')->onDelete('cascade'); // Vérifie le type de colonne
+            $table->foreignId('module_id')->constrained('modules')->onDelete('cascade');
+            $table->foreignId('etudiant_id')->constrained('etudiants')->onDelete('cascade'); // Vérifie le type de colonne
             $table->integer('numero_controle');
             $table->decimal('note', 4, 2)->notNullable();
             $table->string('annee_scolaire', 9);
