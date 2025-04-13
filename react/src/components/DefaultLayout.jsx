@@ -1,51 +1,72 @@
-import React, { use, useEffect } from "react";
-import { data, Link, Navigate, Outlet } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Link, Navigate, Outlet } from "react-router-dom";
 import { useStateContext } from "../contexts/ContextProvider";
 import axiosClient from "../axios-client";
 
 function DefaultLayout() {
-  const { notification, user, token, setUser, setToken } = useStateContext();
+    const { notification, user, token, setUser, setToken } = useStateContext();
 
-  if (!token) {
-    return <Navigate to="/auth/login" />;
-  }
+    if (!token) {
+        return <Navigate to="/auth/login" />;
+    }
 
-  const onLogout = (ev) => {
-    ev.preventDefault();
-    axiosClient.post("/logout").then(() => {
-      setUser({});
-      setToken(null);
-    });
-  };
+    const onLogout = (ev) => {
+        ev.preventDefault();
+        axiosClient.post("/logout").then(() => {
+            setUser({});
+            setToken(null);
+        });
+    };
 
-  useEffect(() => {
-    axiosClient.get("/user").then(({ data }) => {
-      setUser(data);
-    });
-  }, []);
+    useEffect(() => {
+        axiosClient.get("/user").then(({ data }) => {
+            setUser(data);
+        });
+    }, []);
 
-  return (
-    <div id="defaultLayout">
-      <aside>
-        <Link to="/dashboard">Dashboard</Link>
-        <Link to="/users">Users</Link>
-      </aside>
-      <div className="content">
-        <header>
-          <div>Header</div>
-          <div>{user.name}</div>
-          <a className="btn-logout" href="#" onClick={onLogout}>
-            Logout
-          </a>
-        </header>
-        <main>
-          <Outlet />
-        </main>
-      </div>
-      {/* ---- Display Notification */}
-      {notification && <div className="notification">{notification}</div>}{" "}
-    </div>
-  );
+    return (
+        <div className="min-h-screen bg-gray-100">
+            {/* Header */}
+            <nav className="bg-white shadow-lg">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between h-16">
+                        <div className="flex">
+                            <div className="flex-shrink-0 flex items-center">
+                                <img
+                                    className="h-8 w-auto"
+                                    src="https://cdn-icons-png.flaticon.com/512/2232/2232688.png"
+                                    alt="Logo École"
+                                />
+                                <span className="ml-2 text-xl font-bold text-gray-800">
+                                    Gestion des Notes
+                                </span>
+                            </div>
+                        </div>
+                        <div className="flex items-center">
+                            <div className="ml-3 relative">
+                                <div className="flex items-center">
+                                    <span className="text-gray-700 mr-4">
+                                        Bienvenue, {user.name}
+                                    </span>
+                                    <button
+                                        onClick={onLogout}
+                                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                                    >
+                                        Déconnexion
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            {/* Main Content */}
+            <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                <Outlet />
+            </main>
+        </div>
+    );
 }
 
 export default DefaultLayout;
