@@ -62,12 +62,25 @@ function Dashboard() {
                             name: "Français",
                             path: "francais",
                             icon: "📚",
+                            coefficient: 3,
+                            masseHoraire: "48h",
+                            description:
+                                "Langue et communication professionnelle",
+                            enseignant: "Dr. Martin",
+                            type: "Matière fondamentale",
+                            credits: 4,
                         },
                         {
                             id: 2,
                             name: "Mathématiques",
                             path: "mathematiques",
                             icon: "📐",
+                            coefficient: 4,
+                            masseHoraire: "64h",
+                            description: "Analyse et algèbre",
+                            enseignant: "Dr. Dubois",
+                            type: "Matière fondamentale",
+                            credits: 5,
                         },
                     ],
                 },
@@ -153,6 +166,10 @@ function Dashboard() {
                 (semester) => semester.modules
             )
         );
+    };
+
+    const getCurrentModule = () => {
+        return getAllModules().find((m) => m.path === selectedModule);
     };
 
     return (
@@ -308,6 +325,67 @@ function Dashboard() {
                             </button>
                         </div>
                     </div>
+
+                    {/* Informations du module */}
+                    {getCurrentModule() && (
+                        <div className="bg-white shadow rounded-lg mb-6">
+                            <div className="p-6">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center">
+                                        <span className="text-3xl mr-4">
+                                            {getCurrentModule().icon}
+                                        </span>
+                                        <div>
+                                            <h2 className="text-xl font-semibold text-gray-900">
+                                                {getCurrentModule().name}
+                                            </h2>
+                                            <p className="text-sm text-gray-500">
+                                                {getCurrentModule().description}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                                        {getCurrentModule().type}
+                                    </span>
+                                </div>
+
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                                    <div className="p-4 bg-gray-50 rounded-lg">
+                                        <p className="text-sm text-gray-500">
+                                            Coefficient
+                                        </p>
+                                        <p className="text-lg font-semibold text-gray-900">
+                                            {getCurrentModule().coefficient}
+                                        </p>
+                                    </div>
+                                    <div className="p-4 bg-gray-50 rounded-lg">
+                                        <p className="text-sm text-gray-500">
+                                            Masse Horaire
+                                        </p>
+                                        <p className="text-lg font-semibold text-gray-900">
+                                            {getCurrentModule().masseHoraire}
+                                        </p>
+                                    </div>
+                                    <div className="p-4 bg-gray-50 rounded-lg">
+                                        <p className="text-sm text-gray-500">
+                                            Crédits
+                                        </p>
+                                        <p className="text-lg font-semibold text-gray-900">
+                                            {getCurrentModule().credits} ECTS
+                                        </p>
+                                    </div>
+                                    <div className="p-4 bg-gray-50 rounded-lg">
+                                        <p className="text-sm text-gray-500">
+                                            Enseignant
+                                        </p>
+                                        <p className="text-lg font-semibold text-gray-900">
+                                            {getCurrentModule().enseignant}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Tableau des notes */}
                     <div className="bg-white shadow rounded-lg">
