@@ -7,7 +7,7 @@ function DefaultLayout() {
   const { notification, user, token, setUser, setToken } = useStateContext();
 
   if (!token) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/auth/login" />;
   }
 
   const onLogout = (ev) => {

@@ -45,7 +45,7 @@ function Login() {
     <div className="login-signup-form animated fadeInDown">
       <div className="form">
         <form onSubmit={onSubmit}>
-          <h1 className="title">Login Into Your Account</h1>
+          <h1 className="title">Create a new Account</h1>
           {errors && (
             <div className="alert">
               {Object.keys(errors).map((key) => (
@@ -57,7 +57,7 @@ function Login() {
           <input ref={passwordRef} type="password" placeholder="Password" />
           <button className="btn btn-block">Login</button>
           <p className="message">
-            Not Registered? <Link to="/signup"> Create an account </Link>
+            Already registered? <Link to="/auth/login"> Login </Link>
           </p>
         </form>
       </div>
