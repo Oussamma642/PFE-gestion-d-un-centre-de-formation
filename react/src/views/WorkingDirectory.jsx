@@ -24,11 +24,21 @@ const WorkingDirectory = () => {
         },
     ];
 
-    const handleSubOptionClick = (subOptionId) => {
-        if (subOptionId === 1) {
-            navigate("/dashboard");
-        }
-    };
+        const handleSubOptionClick = (subOptionId) => {
+
+            switch (subOptionId) {
+                case 1:
+                    navigate("/dashboard/première_annee");
+                    break;
+                
+                case 2:
+                    navigate("/dashboard/deuxième_annee");
+                    break;
+                default:
+                    navigate("/dashboard/première_annee");
+                    break;
+            }
+        };
 
     const containerVariants = {
         hidden: { opacity: 0 },

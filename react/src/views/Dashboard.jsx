@@ -1,50 +1,58 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
-import { ModulesByYearAndSemester } from "../assets/modulesByYearAndSemester";
+import { useLocation, useParams } from "react-router-dom";
 import { Students } from "../assets/students";
+import axiosClient from "../axios-client";
 
 function Dashboard() {
     const location = useLocation();
-    const [selectedModule, setSelectedModule] = useState("francais");
-    const [expandedYear, setExpandedYear] = useState("1ere-annee");
-    const [expandedSemester, setExpandedSemester] = useState("s1");
-
+    const { annee } = useParams();
+    const [selectedModule, setSelectedModule] = useState(null);
+    const [expandedSemester, setExpandedSemester] = useState("Mars");
+    const [modules, setModules] = useState([]);
     const [students] = useState(Students);
 
-    const modulesByYearAndSemester = ModulesByYearAndSemester;
+    useEffect(() => {
+        const fetchModules = async () => {
+            try {
+                const response = await axiosClient.get("/modules");
+                const filteredModules = response.data.filter(
+                    (module) => module.annee === annee
+                );
+                setModules(filteredModules);
+                // Sélectionner le premier module par défaut
+                if (filteredModules.length > 0) {
+                    setSelectedModule(filteredModules[0].id);
+                }
+            } catch (error) {
+                console.error(
+                    "Erreur lors de la récupération des modules:",
+                    error
+                );
+            }
+        };
+
+        fetchModules();
+    }, [annee]);
 
     const calculateAverage = (cc, tp, exam) => {
         return (cc * 0.3 + tp * 0.2 + exam * 0.5).toFixed(2);
     };
 
-    const handleModuleClick = (modulePath) => {
-        setSelectedModule(modulePath);
-    };
-
-    const toggleYear = (year) => {
-        setExpandedYear(expandedYear === year ? null : year);
+    const handleModuleClick = (moduleId) => {
+        setSelectedModule(moduleId);
     };
 
     const toggleSemester = (semester) => {
         setExpandedSemester(expandedSemester === semester ? null : semester);
     };
 
-    const getAllModules = () => {
-        return Object.values(modulesByYearAndSemester).flatMap((year) =>
-            Object.values(year.semesters).flatMap(
-                (semester) => semester.modules
-            )
-        );
+    const getModulesBySemester = (semester) => {
+        return modules.filter((module) => module.semestre === semester);
     };
 
     const getCurrentModule = () => {
-        return getAllModules().find((m) => m.path === selectedModule);
+        return modules.find((m) => m.id === selectedModule);
     };
-
-
-  
-
-
 
     return (
         <div className="flex h-screen bg-gray-100">
@@ -52,137 +60,84 @@ function Dashboard() {
             <div className="w-64 bg-white shadow-lg">
                 <div className="p-4 border-b border-gray-200">
                     <h2 className="text-xl font-semibold text-gray-800">
-                        Modules
+                        Modules{" "}
+                        {annee === "première_annee"
+                            ? "1ère Année"
+                            : "2ème Année"}
                     </h2>
                 </div>
                 <nav className="mt-4">
-                    {Object.entries(modulesByYearAndSemester).map(
-                        ([yearKey, yearData]) => (
-                            <div key={yearKey} className="mb-2">
-                                {/* Année */}
-                                <button
-                                    onClick={() => toggleYear(yearKey)}
-                                    className="w-full px-4 py-3 flex items-center justify-between text-sm font-medium text-gray-600 hover:bg-gray-50 focus:outline-none"
-                                >
-                                    <span className="flex items-center">
-                                        <span className="mr-2">
-                                            {expandedYear === yearKey
-                                                ? "📂"
-                                                : "📁"}
-                                        </span>
-                                        {yearData.label}
+                    {["Mars", "Juillet"].map((semester) => (
+                        <div key={semester}>
+                            <button
+                                onClick={() => toggleSemester(semester)}
+                                className="w-full px-4 py-2 flex items-center justify-between text-sm font-medium text-gray-600 hover:bg-gray-50 focus:outline-none"
+                            >
+                                <span className="flex items-center">
+                                    <span className="mr-2">
+                                        {expandedSemester === semester
+                                            ? "📂"
+                                            : "📁"}
                                     </span>
-                                    <svg
-                                        className={`w-4 h-4 transition-transform ${
-                                            expandedYear === yearKey
-                                                ? "transform rotate-180"
-                                                : ""
-                                        }`}
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M19 9l-7 7-7-7"
-                                        />
-                                    </svg>
-                                </button>
+                                    Semestre {semester}
+                                </span>
+                                <svg
+                                    className={`w-3 h-3 transition-transform ${
+                                        expandedSemester === semester
+                                            ? "transform rotate-180"
+                                            : ""
+                                    }`}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M19 9l-7 7-7-7"
+                                    />
+                                </svg>
+                            </button>
 
-                                {/* Semestres */}
-                                {expandedYear === yearKey && (
-                                    <div className="pl-4">
-                                        {Object.entries(yearData.semesters).map(
-                                            ([semesterKey, semesterData]) => (
-                                                <div key={semesterKey}>
-                                                    <button
-                                                        onClick={() =>
-                                                            toggleSemester(
-                                                                semesterKey
-                                                            )
-                                                        }
-                                                        className="w-full px-4 py-2 flex items-center justify-between text-sm font-medium text-gray-600 hover:bg-gray-50 focus:outline-none"
-                                                    >
-                                                        <span className="flex items-center">
-                                                            <span className="mr-2">
-                                                                {expandedSemester ===
-                                                                semesterKey
-                                                                    ? "📂"
-                                                                    : "📁"}
-                                                            </span>
-                                                            {semesterData.label}
-                                                        </span>
-                                                        <svg
-                                                            className={`w-3 h-3 transition-transform ${
-                                                                expandedSemester ===
-                                                                semesterKey
-                                                                    ? "transform rotate-180"
-                                                                    : ""
-                                                            }`}
-                                                            fill="none"
-                                                            stroke="currentColor"
-                                                            viewBox="0 0 24 24"
-                                                        >
-                                                            <path
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                strokeWidth={2}
-                                                                d="M19 9l-7 7-7-7"
-                                                            />
-                                                        </svg>
-                                                    </button>
-
-                                                    {/* Modules */}
-                                                    {expandedSemester ===
-                                                        semesterKey && (
-                                                        <div className="pl-4">
-                                                            {semesterData.modules.map(
-                                                                (module) => (
-                                                                    <button
-                                                                        key={
-                                                                            module.id
-                                                                        }
-                                                                        onClick={() =>
-                                                                            handleModuleClick(
-                                                                                module.path
-                                                                            )
-                                                                        }
-                                                                        className={`${
-                                                                            selectedModule ===
-                                                                            module.path
-                                                                                ? "bg-blue-50 text-blue-600"
-                                                                                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                                                                        } group flex items-center w-full px-4 py-2 text-sm font-medium rounded-md transition-colors relative`}
-                                                                    >
-                                                                        <span className="mr-3 text-xl">
-                                                                            {
-                                                                                module.icon
-                                                                            }
-                                                                        </span>
-                                                                        <span className="flex-1 text-left">
-                                                                            {
-                                                                                module.name
-                                                                            }
-                                                                        </span>
-                                                                        {selectedModule ===
-                                                                            module.path && (
-                                                                            <span className="w-1 h-6 bg-blue-600 rounded-l-full absolute -right-4"></span>
-                                                                        )}
-                                                                    </button>
-                                                                )
-                                                            )}
-                                                        </div>
-                                                    )}
+                            {expandedSemester === semester && (
+                                <div className="pl-4">
+                                    {getModulesBySemester(semester).map(
+                                        (module) => (
+                                            <button
+                                                key={module.id}
+                                                onClick={() =>
+                                                    handleModuleClick(module.id)
+                                                }
+                                                className={`${
+                                                    selectedModule === module.id
+                                                        ? "bg-blue-50 text-blue-600"
+                                                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                                                } group flex items-center w-full px-4 py-2 text-sm font-medium rounded-md transition-colors relative`}
+                                            >
+                                                <span className="mr-3 text-xl">
+                                                    📚
+                                                </span>
+                                                <div className="flex-1 text-left">
+                                                    <div className="font-medium">
+                                                        {module.libelle}
+                                                    </div>
+                                                    <div className="text-xs text-gray-500">
+                                                        Coefficient:{" "}
+                                                        {module.coefficient}
+                                                    </div>
                                                 </div>
-                                            )
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                        )
-                    )}
+                                                {selectedModule ===
+                                                    module.id && (
+                                                    <span className="w-1 h-6 bg-blue-600 rounded-l-full absolute -right-4"></span>
+                                                )}
+                                            </button>
+                                        )
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    ))}
                 </nav>
             </div>
 
@@ -207,20 +162,14 @@ function Dashboard() {
                                 <div className="flex items-center justify-between mb-4">
                                     <div className="flex items-center">
                                         <span className="text-3xl mr-4">
-                                            {getCurrentModule().icon}
+                                            📚
                                         </span>
                                         <div>
                                             <h2 className="text-xl font-semibold text-gray-900">
-                                                {getCurrentModule().name}
+                                                {getCurrentModule().libelle}
                                             </h2>
-                                            <p className="text-sm text-gray-500">
-                                                {getCurrentModule().description}
-                                            </p>
                                         </div>
                                     </div>
-                                    <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
-                                        {getCurrentModule().type}
-                                    </span>
                                 </div>
 
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
@@ -237,23 +186,23 @@ function Dashboard() {
                                             Masse Horaire
                                         </p>
                                         <p className="text-lg font-semibold text-gray-900">
-                                            {getCurrentModule().masseHoraire}
+                                            {getCurrentModule().masse_horaire}h
                                         </p>
                                     </div>
                                     <div className="p-4 bg-gray-50 rounded-lg">
                                         <p className="text-sm text-gray-500">
-                                            Crédits
+                                            Semestre
                                         </p>
                                         <p className="text-lg font-semibold text-gray-900">
-                                            {getCurrentModule().credits} ECTS
+                                            {getCurrentModule().semestre}
                                         </p>
                                     </div>
                                     <div className="p-4 bg-gray-50 rounded-lg">
                                         <p className="text-sm text-gray-500">
-                                            Enseignant
+                                            Année Scolaire
                                         </p>
                                         <p className="text-lg font-semibold text-gray-900">
-                                            {getCurrentModule().enseignant}
+                                            {getCurrentModule().annee_scolaire}
                                         </p>
                                     </div>
                                 </div>
@@ -267,17 +216,8 @@ function Dashboard() {
                             <div className="flex justify-between items-center mb-6">
                                 <h2 className="text-xl font-semibold text-gray-800">
                                     Notes du Module :{" "}
-                                    {
-                                        getAllModules().find(
-                                            (m) => m.path === selectedModule
-                                        )?.name
-                                    }
+                                    {getCurrentModule()?.libelle}
                                 </h2>
-                                {/* <div className="flex space-x-2">
-                                    <button className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
-                                        Ajouter une note
-                                    </button>
-                                </div> */}
                             </div>
                             <div className="overflow-x-auto">
                                 <table className="min-w-full divide-y divide-gray-200">

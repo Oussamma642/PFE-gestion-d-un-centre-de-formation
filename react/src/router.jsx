@@ -19,7 +19,7 @@ const router = createBrowserRouter([
         element: <WorkingDirectory/>
       },
       {
-        path: "/dashboard",
+        path: "/dashboard/:annee",
         element: <Dashboard />,
       },
       
