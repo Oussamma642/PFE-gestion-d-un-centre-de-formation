@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\EtudiantController;
+use App\Http\Controllers\Api\ModuleController;
 
 
 /*
@@ -27,8 +28,10 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::apiResource('/users', UserController::class);
-
+    
     Route::apiResource('/etudiants', EtudiantController::class);
+    
+    Route::apiResource('/modules', ModuleController::class);
 
 });
 

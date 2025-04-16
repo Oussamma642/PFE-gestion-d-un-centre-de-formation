@@ -30,11 +30,17 @@ function DefaultLayout() {
         });
     };
 
+    // useEffect(()=>{
+    //     axiosClient.get('/etudiants').then(({data})=>{
+    //         console.log(data);
+    //     })
+    // }, []);
+
     useEffect(()=>{
-        axiosClient.get('/etudiants').then(({data})=>{
+        axiosClient.get('/modules').then(({data})=>{
             console.log(data);
         })
-    }, []);
+    },[]);
 
 
     useEffect(() => {
