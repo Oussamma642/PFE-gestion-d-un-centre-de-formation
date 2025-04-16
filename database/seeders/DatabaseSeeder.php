@@ -18,5 +18,10 @@ class DatabaseSeeder extends Seeder
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
+        // \App\Models\Etudiant::factory()->count(5)->create();
+
+        \App\Models\Module::factory()->count(3)->create();
+
+
     }
 }
