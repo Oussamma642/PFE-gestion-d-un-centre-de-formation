@@ -17,7 +17,14 @@ class Filiere extends Model
 
     public function etudiants()
     {
-        return $this->hasManyThrough(Etudiant::class, Promotion::class);
+        // return $this->hasManyThrough(Etudiant::class, Promotion::class);
+        return $this->hasManyThrough(Etudiant::class, Promotion::class,
+
+            'filiere_id',   // Foreign key on promotions table
+            'promotion_id', // Foreign key on etudiants table
+            'id',           // Local key on filieres table
+            'id'
+        );
     }
 
     public function modules()

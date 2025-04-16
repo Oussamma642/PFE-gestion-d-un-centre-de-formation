@@ -6,6 +6,7 @@ import DefaultLayout from "./components/DefaultLayout";
 import GuestLayout from "./components/GuestLayout";
 import Dashboard from "./views/Dashboard";
 import Francais from "./views/Francais";
+import WorkingDirectory from "./views/WorkingDirectory";
 
 const router = createBrowserRouter([
   // DefaultLayout
@@ -14,9 +15,14 @@ const router = createBrowserRouter([
     element: <DefaultLayout />,
     children: [
       {
+        path:"/working-directory",
+        element: <WorkingDirectory/>
+      },
+      {
         path: "/dashboard",
         element: <Dashboard />,
       },
+      
       {
         path: "/dashboard/francais",
         element: <Francais />,
