@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Etudiant;
 
+use App\Http\Resources\EtudiantResource;
+
 class EtudiantController extends Controller
 {
     /**
@@ -13,7 +15,8 @@ class EtudiantController extends Controller
      */
     public function index()
     {
-        //
+        $etudiants = Etudiant::all();
+        return EtudiantResource::collection($etudiants);
     }
 
     /**

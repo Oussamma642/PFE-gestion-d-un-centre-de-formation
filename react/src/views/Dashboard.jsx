@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { ModulesByYearAndSemester } from "../assets/modulesByYearAndSemester";
 import { Students } from "../assets/students";
@@ -40,6 +40,11 @@ function Dashboard() {
     const getCurrentModule = () => {
         return getAllModules().find((m) => m.path === selectedModule);
     };
+
+
+  
+
+
 
     return (
         <div className="flex h-screen bg-gray-100">

@@ -25,15 +25,12 @@ Route::middleware('auth:sanctum')->group(function(){
     });
 
     Route::post('/logout', [AuthController::class, 'logout']);
-    
-    // Route::apiResource('/users', UserController::class);
 
     Route::apiResource('/users', UserController::class);
 
     Route::apiResource('/etudiants', EtudiantController::class);
 
 });
-
 
 Route::post('/signup', [AuthController::class, 'signup']);
 Route::post('/login', [AuthController::class, 'login']);

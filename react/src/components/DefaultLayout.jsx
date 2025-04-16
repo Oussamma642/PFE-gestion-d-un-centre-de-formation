@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Link, Navigate, Outlet } from "react-router-dom";
+import { data, Link, Navigate, Outlet } from "react-router-dom";
 import { useStateContext } from "../contexts/ContextProvider";
 import axiosClient from "../axios-client";
 
@@ -29,6 +29,13 @@ function DefaultLayout() {
             setToken(null);
         });
     };
+
+    useEffect(()=>{
+        axiosClient.get('/etudiants').then(({data})=>{
+            console.log(data);
+        })
+    }, []);
+
 
     useEffect(() => {
         axiosClient.get("/user").then(({ data }) => {
