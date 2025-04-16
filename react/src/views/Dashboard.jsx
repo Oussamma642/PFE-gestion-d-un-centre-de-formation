@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
+import { ModulesByYearAndSemester } from "../assets/modulesByYearAndSemester";
+import { Students } from "../assets/students";
 
 function Dashboard() {
     const location = useLocation();
@@ -7,142 +9,9 @@ function Dashboard() {
     const [expandedYear, setExpandedYear] = useState("1ere-annee");
     const [expandedSemester, setExpandedSemester] = useState("s1");
 
-    const [students] = useState([
-        {
-            id: 1,
-            name: "Jean Dupont",
-            code: "ETU001",
-            note_cc: 15,
-            note_tp: 16,
-            note_exam: 14,
-        },
-        {
-            id: 2,
-            name: "Marie Martin",
-            code: "ETU002",
-            note_cc: 17,
-            note_tp: 15,
-            note_exam: 16,
-        },
-        {
-            id: 3,
-            name: "Pierre Durant",
-            code: "ETU003",
-            note_cc: 13,
-            note_tp: 14,
-            note_exam: 15,
-        },
-        {
-            id: 4,
-            name: "Sophie Bernard",
-            code: "ETU004",
-            note_cc: 16,
-            note_tp: 17,
-            note_exam: 15,
-        },
-        {
-            id: 5,
-            name: "Lucas Petit",
-            code: "ETU005",
-            note_cc: 14,
-            note_tp: 15,
-            note_exam: 16,
-        },
-    ]);
+    const [students] = useState(Students);
 
-    const modulesByYearAndSemester = {
-        "1ere-annee": {
-            label: "1ère Année",
-            semesters: {
-                s1: {
-                    label: "Semestre 1",
-                    modules: [
-                        {
-                            id: 1,
-                            name: "Français",
-                            path: "francais",
-                            icon: "📚",
-                            coefficient: 3,
-                            masseHoraire: "48h",
-                            description:
-                                "Langue et communication professionnelle",
-                            enseignant: "Dr. Martin",
-                            type: "Matière fondamentale",
-                            credits: 4,
-                        },
-                        {
-                            id: 2,
-                            name: "Mathématiques",
-                            path: "mathematiques",
-                            icon: "📐",
-                            coefficient: 4,
-                            masseHoraire: "64h",
-                            description: "Analyse et algèbre",
-                            enseignant: "Dr. Dubois",
-                            type: "Matière fondamentale",
-                            credits: 5,
-                        },
-                    ],
-                },
-                s2: {
-                    label: "Semestre 2",
-                    modules: [
-                        {
-                            id: 3,
-                            name: "Physique",
-                            path: "physique",
-                            icon: "⚛️",
-                        },
-                        {
-                            id: 4,
-                            name: "Chimie",
-                            path: "chimie",
-                            icon: "🧪",
-                        },
-                    ],
-                },
-            },
-        },
-        "2eme-annee": {
-            label: "2ème Année",
-            semesters: {
-                s1: {
-                    label: "Semestre 1",
-                    modules: [
-                        {
-                            id: 5,
-                            name: "Informatique",
-                            path: "informatique",
-                            icon: "💻",
-                        },
-                        {
-                            id: 6,
-                            name: "Anglais",
-                            path: "anglais",
-                            icon: "🌍",
-                        },
-                    ],
-                },
-                s2: {
-                    label: "Semestre 2",
-                    modules: [
-                        {
-                            id: 7,
-                            name: "Base de données",
-                            path: "bdd",
-                            icon: "💾",
-                        },
-                        {
-                            id: 8,
-                            name: "Réseaux",
-                            path: "reseaux",
-                            icon: "🌐",
-                        },
-                    ],
-                },
-            },
-        },
-    };
+    const modulesByYearAndSemester = ModulesByYearAndSemester;
 
     const calculateAverage = (cc, tp, exam) => {
         return (cc * 0.3 + tp * 0.2 + exam * 0.5).toFixed(2);
@@ -399,11 +268,11 @@ function Dashboard() {
                                         )?.name
                                     }
                                 </h2>
-                                <div className="flex space-x-2">
+                                {/* <div className="flex space-x-2">
                                     <button className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
                                         Ajouter une note
                                     </button>
-                                </div>
+                                </div> */}
                             </div>
                             <div className="overflow-x-auto">
                                 <table className="min-w-full divide-y divide-gray-200">

@@ -25,7 +25,6 @@ class AuthController extends Controller
         return response(compact('user', 'token')); 
     }
 
-
     public function login(LoginRequest $request)
     {
         $credentials = $request->validated();

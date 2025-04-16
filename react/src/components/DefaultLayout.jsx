@@ -3,6 +3,18 @@ import { Link, Navigate, Outlet } from "react-router-dom";
 import { useStateContext } from "../contexts/ContextProvider";
 import axiosClient from "../axios-client";
 
+const handleModuleClick = (modulePath) => {
+    setSelectedModule(modulePath);
+};
+
+const toggleYear = (year) => {
+    setExpandedYear(expandedYear === year ? null : year);
+};
+
+const toggleSemester = (semester) => {
+    setExpandedSemester(expandedSemester === semester ? null : semester);
+};
+
 function DefaultLayout() {
     const { notification, user, token, setUser, setToken } = useStateContext();
 
