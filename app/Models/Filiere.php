@@ -1,9 +1,8 @@
 <?php
 namespace App\Models;
-use Illuminate\Database\Eloquent\Model;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
-
+use Illuminate\Database\Eloquent\Model;
 
 class Filiere extends Model
 {
@@ -11,9 +10,14 @@ class Filiere extends Model
 
     protected $fillable = ['libelle'];
 
+    public function promotions()
+    {
+        return $this->hasMany(Promotion::class);
+    }
+
     public function etudiants()
     {
-        return $this->hasMany(Etudiant::class);
+        return $this->hasManyThrough(Etudiant::class, Promotion::class);
     }
 
     public function modules()
@@ -21,5 +25,4 @@ class Filiere extends Model
         return $this->hasMany(Module::class);
     }
 
- 
 }

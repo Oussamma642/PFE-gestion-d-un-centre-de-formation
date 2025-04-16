@@ -7,11 +7,28 @@ use Illuminate\Database\Eloquent\Model;
 class Etudiant extends Model
 {
     use HasFactory;
-    protected $fillable = ['nom', 'prenom', 'email', 'filiere_id'];
+    protected $fillable = [
+        'nom',
+        'prenom',
+        'email',
+        'matricule',
+        'filiere_id',
+        'promotion_id',
+        'annee_etude',
+    ];
+
+    protected $casts = [
+        'annee_etude' => 'string',
+    ];
 
     public function filiere()
     {
         return $this->belongsTo(Filiere::class);
+    }
+
+    public function promotion()
+    {
+        return $this->belongsTo(Promotion::class);
     }
 
     public function notes()
@@ -19,9 +36,9 @@ class Etudiant extends Model
         return $this->hasMany(Note::class);
     }
 
-    public function soutenance()
+    public function soutenances()
     {
-        return $this->hasOne(Soutenance::class);
+        return $this->hasMany(Soutenance::class);
     }
 
     public function examens()
