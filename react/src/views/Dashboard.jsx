@@ -18,7 +18,9 @@ function Dashboard() {
                 const filteredModules = response.data.filter(
                     (module) => module.annee === annee
                 );
+                console.log(filteredModules);
                 setModules(filteredModules);
+                // console.log(modules);
                 // Sélectionner le premier module par défaut
                 if (filteredModules.length > 0) {
                     setSelectedModule(filteredModules[0].id);

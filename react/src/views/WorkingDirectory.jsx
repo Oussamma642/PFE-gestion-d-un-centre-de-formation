@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { Book, BarChart2, ChevronDown, ChevronRight } from "lucide-react";
 
 const WorkingDirectory = () => {
     const [selectedOption, setSelectedOption] = useState(null);
@@ -9,43 +10,49 @@ const WorkingDirectory = () => {
     const options = [
         {
             id: 1,
-            title: "Saisir les notes pour la classe: ",
-            icon: "📝",
+            title: "Saisir les notes",
+            description: "Entrez et modifiez les notes des étudiants",
+            icon: <Book className="text-blue-600" />,
+            color: "bg-blue-50 border-blue-200",
+            hoverColor: "hover:bg-blue-100",
+            iconBg: "bg-blue-100",
             subOptions: [
-                { id: 1, title: "De la première année" },
-                { id: 2, title: "De la deuxième année" },
+                { id: 1, title: "Première année", icon: <ChevronRight size={16} /> },
+                { id: 2, title: "Deuxième année", icon: <ChevronRight size={16} /> },
             ],
         },
         {
             id: 2,
             title: "Affichage",
-            icon: "📊",
+            description: "Consultez les statistiques et rapports",
+            icon: <BarChart2 className="text-emerald-600" />,
+            color: "bg-emerald-50 border-emerald-200",
+            hoverColor: "hover:bg-emerald-100",
+            iconBg: "bg-emerald-100",
             subOptions: [],
         },
     ];
 
-        const handleSubOptionClick = (subOptionId) => {
-
-            switch (subOptionId) {
-                case 1:
-                    navigate("/dashboard/première_annee");
-                    break;
-                
-                case 2:
-                    navigate("/dashboard/deuxième_annee");
-                    break;
-                default:
-                    navigate("/dashboard/première_annee");
-                    break;
-            }
-        };
+    const handleSubOptionClick = (subOptionId) => {
+        switch (subOptionId) {
+            case 1:
+                navigate("/dashboard/première_annee");
+                break;
+            case 2:
+                navigate("/dashboard/deuxième_annee");
+                break;
+            default:
+                navigate("/dashboard/première_annee");
+                break;
+        }
+    };
 
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: {
             opacity: 1,
             transition: {
-                staggerChildren: 0.05,
+                staggerChildren: 0.1,
             },
         },
     };
@@ -64,19 +71,24 @@ const WorkingDirectory = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-6xl mx-auto">
+                <div className="mb-10 text-center">
+                    <h1 className="text-3xl font-bold text-slate-800 mb-2">Tableau de Bord</h1>
+                    <p className="text-slate-600">Gérez les notes et les performances des étudiants</p>
+                </div>
+                
                 <motion.div
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
-                    className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6"
                 >
                     {options.map((option) => (
                         <motion.div
                             key={option.id}
                             variants={itemVariants}
-                            className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 border border-slate-200"
+                            className={`rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border ${option.color}`}
                         >
                             <motion.button
                                 whileHover={{ scale: 1.01 }}
@@ -88,70 +100,80 @@ const WorkingDirectory = () => {
                                             : option.id
                                     )
                                 }
-                                className="w-full p-6 text-left focus:outline-none"
+                                className={`w-full p-6 text-left focus:outline-none rounded-xl ${option.hoverColor}`}
                             >
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center space-x-4">
-                                        <span className="text-3xl">
-                                            {option.icon}
-                                        </span>
+                                        <div className={`flex items-center justify-center w-12 h-12 rounded-full ${option.iconBg}`}>
+                                            {typeof option.icon === 'string' ? (
+                                                <span className="text-2xl">{option.icon}</span>
+                                            ) : (
+                                                option.icon
+                                            )}
+                                        </div>
                                         <div>
                                             <h2 className="text-xl font-semibold text-slate-800">
                                                 {option.title}
                                             </h2>
-                                            {option.subOptions.length > 0 && (
-                                                <p className="text-sm text-slate-500 mt-1">
-                                                    {option.subOptions.length}{" "}
-                                                    sous-option
-                                                    {option.subOptions.length >
-                                                    1
-                                                        ? "s"
-                                                        : ""}{" "}
-                                                    disponibles
-                                                </p>
-                                            )}
+                                            <p className="text-sm text-slate-600 mt-1">
+                                                {option.description}
+                                            </p>
                                         </div>
                                     </div>
                                     {option.subOptions.length > 0 && (
-                                        <span
-                                            className={`text-slate-400 transform transition-transform duration-150 ${
-                                                selectedOption === option.id
-                                                    ? "rotate-180"
-                                                    : ""
+                                        <ChevronDown 
+                                            className={`text-slate-500 transition-transform duration-300 ${
+                                                selectedOption === option.id ? "rotate-180" : ""
                                             }`}
-                                        >
-                                            ▼
-                                        </span>
+                                            size={20}
+                                        />
                                     )}
                                 </div>
                             </motion.button>
 
                             {selectedOption === option.id &&
                                 option.subOptions.length > 0 && (
-                                    <div className="border-t border-slate-100">
-                                        <div className="p-4 space-y-2">
+                                    <motion.div 
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: "auto" }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="border-t border-slate-200"
+                                    >
+                                        <div className="p-4 space-y-1">
                                             {option.subOptions.map(
                                                 (subOption) => (
-                                                    <button
+                                                    <motion.button
                                                         key={subOption.id}
+                                                        whileHover={{ x: 5 }}
                                                         onClick={() =>
                                                             handleSubOptionClick(
                                                                 subOption.id
                                                             )
                                                         }
-                                                        className="w-full px-4 py-2 text-left hover:bg-slate-50 rounded-lg transition-colors duration-200"
+                                                        className="w-full px-4 py-3 text-left hover:bg-slate-100 rounded-lg transition-colors duration-200 flex items-center justify-between"
                                                     >
-                                                        <span className="text-slate-700">
+                                                        <span className="text-slate-700 font-medium">
                                                             {subOption.title}
                                                         </span>
-                                                    </button>
+                                                        {subOption.icon}
+                                                    </motion.button>
                                                 )
                                             )}
                                         </div>
-                                    </div>
+                                    </motion.div>
                                 )}
                         </motion.div>
                     ))}
+                </motion.div>
+                
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                    className="mt-8 text-center text-slate-500 text-sm"
+                >
+                    <p>© 2025 Système de Gestion Scolaire</p>
                 </motion.div>
             </div>
         </div>
