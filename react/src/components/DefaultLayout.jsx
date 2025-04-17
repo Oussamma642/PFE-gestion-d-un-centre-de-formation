@@ -30,11 +30,7 @@ function DefaultLayout() {
         });
     };
 
-    useEffect(()=>{
-        axiosClient.get('/modules').then(({data})=>{
-            console.log(data);
-        })
-    },[]);
+  
 
     useEffect(() => {
         axiosClient.get("/user").then(({ data }) => {

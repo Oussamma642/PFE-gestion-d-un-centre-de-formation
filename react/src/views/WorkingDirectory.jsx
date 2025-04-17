@@ -36,13 +36,13 @@ const WorkingDirectory = () => {
     const handleSubOptionClick = (subOptionId) => {
         switch (subOptionId) {
             case 1:
-                navigate("/dashboard/première_annee");
+                navigate("/dashboard/premiere_annee");
                 break;
             case 2:
-                navigate("/dashboard/deuxième_annee");
+                navigate("/dashboard/deuxieme_annee");
                 break;
             default:
-                navigate("/dashboard/première_annee");
+                navigate("/dashboard/premiere_annee");
                 break;
         }
     };

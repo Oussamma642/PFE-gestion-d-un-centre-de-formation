@@ -1,14 +1,10 @@
 <?php
-
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
 use App\Http\Resources\ModuleResource;
-
-
 use App\Models\Module;
+use Illuminate\Http\Request;
 
 class ModuleController extends Controller
 {
@@ -43,6 +39,17 @@ class ModuleController extends Controller
     public function show(string $id)
     {
         //
+    }
+
+    public function showByAnnee($annee)
+    {
+        $modules = Module::where('annee', $annee)->get();
+
+        if ($modules->isEmpty()) {
+            return response()->json(['message' => 'Aucun module trouvé pour cette année.'], 404);
+        }
+
+        return response()->json($modules);
     }
 
     /**

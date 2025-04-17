@@ -31,6 +31,11 @@ Route::middleware('auth:sanctum')->group(function(){
     
     Route::apiResource('/etudiants', EtudiantController::class);
     
+
+    // ------ Modules
+    // Route::get('/modules/annee/{annee}', [ModuleController::class, 'showByAnnee']);
+    Route::get('/modules/annee/{annee}', [ModuleController::class, 'showByAnnee']);
+
     Route::apiResource('/modules', ModuleController::class);
 
 });
