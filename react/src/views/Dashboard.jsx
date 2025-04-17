@@ -19,6 +19,7 @@ import SideBar from "../pages/SideBar";
 
 function Dashboard() {
     const { annee } = useParams();
+    const [etudiants, setEtudiants] = useState([]);
     const [modules, setModules] = useState([]);
     const [selectedModule, setSelectedModule] = useState(null);
     const [activeTab, setActiveTab] = useState("notes");
@@ -35,7 +36,6 @@ function Dashboard() {
                 const response = await axiosClient.get(
                     `/modules/annee/${annee}`
                 );
-                console.log(response.data);
                 // Make sure modules is always an array
                 const modulesData = Array.isArray(response.data)
                     ? response.data
@@ -67,6 +67,42 @@ function Dashboard() {
 
         fetchModules();
     }, [annee]);
+
+
+    // Fetch etudiants based on the year (annee)
+    useEffect(()=>{
+        const fetchEtudiants = async () => {
+            setLoading(true);
+            try {
+                const response = await axiosClient.get(
+                    `/etudiants/annee/${annee}`
+                );
+                console.log(response.data);
+                // Make sure modules is always an array
+                const etudiantsData = Array.isArray(response.data)
+                    ? response.data
+                    : [];
+
+                // Set the first module as selected by default if available
+                if (etudiantsData.length > 0) {
+                    setEtudiants(etudiantsData[0]);
+                }
+            } catch (error) {
+                console.error("Error fetching modules:", error);
+                // Initialize with empty arrays in case of error
+                // setModules([]);
+                // setMarsSemesterModules([]);
+                // setJuilletSemesterModules([]);
+                setEtudiants([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchEtudiants();
+
+
+    },[annee]);
 
     // Calculate average grade for a student
     const calculateAverage = (student) => {

@@ -35,6 +35,17 @@ class EtudiantController extends Controller
         //
     }
 
+    public function showByAnnee($annee)
+    {
+        $etudiants = Etudiant::where('annee', $annee)->get();
+
+        if ($etudiants->isEmpty()) {
+            return response()->json(['message' => 'Aucun module trouvé pour cette année.'], 404);
+        }
+
+        return response()->json($etudiants);
+    }
+
     /**
      * Update the specified resource in storage.
      */

@@ -28,14 +28,16 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::apiResource('/users', UserController::class);
+
     
+    // ------ Etudiants
     Route::apiResource('/etudiants', EtudiantController::class);
-    
+    Route::get('/etudiants/annee/{annee}', [EtudiantController::class, 'showByAnnee']);
+
 
     // ------ Modules
     // Route::get('/modules/annee/{annee}', [ModuleController::class, 'showByAnnee']);
     Route::get('/modules/annee/{annee}', [ModuleController::class, 'showByAnnee']);
-
     Route::apiResource('/modules', ModuleController::class);
 
 });
