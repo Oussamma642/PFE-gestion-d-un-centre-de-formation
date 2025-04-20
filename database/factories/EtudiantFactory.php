@@ -24,7 +24,7 @@ class EtudiantFactory extends Factory
             'matricule' => strtoupper(Str::random(8)),
             'filiere_id' => 1,
             'promotion_id' => 1,
-            'annee_etude' => '1',
+            'annee' => 'premiere_annee',
         ];
     }
 }

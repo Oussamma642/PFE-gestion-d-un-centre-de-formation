@@ -9,16 +9,20 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('modules', function (Blueprint $table) {
-            $table->id(); // Cela crée une colonne unsigned bigInteger
-            
+            $table->id();
+            $table->foreignId('filiere_id')
+                  ->constrained('filieres')
+                  ->onDelete('cascade');
             $table->string('libelle', 100);
             $table->integer('coefficient');
             $table->integer('masse_horaire');
-            $table->enum('annee', ['première_annee', 'deuxième_annee']);
+            $table->enum('annee', ['premiere_annee', 'deuxieme_annee']);
             $table->enum('semestre', ['Mars', 'Juillet']);
             $table->string('annee_scolaire', 9);
-            $table->foreignId('filiere_id')->constrained('filieres');
+            $table->integer('nombre_controles')->default(1);
             $table->timestamps();
+            // Optionnel : éviter les doublons de modules dans une même filière et année
+            $table->unique(['filiere_id', 'libelle', 'annee_scolaire']);
         });
         
     }

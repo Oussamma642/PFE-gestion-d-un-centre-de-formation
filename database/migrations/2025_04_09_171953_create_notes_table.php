@@ -13,12 +13,19 @@ return new class extends Migration
     {
         Schema::create('notes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('etudiant_id')->constrained('etudiants');
-            $table->foreignId('module_id')->constrained('modules');
-            $table->decimal('moyenne_CC',4,2);
-            $table->string('annee_scolaire',9);
+            $table->foreignId('etudiant_id')
+                  ->constrained('etudiants')
+                  ->onDelete('cascade');
+            $table->foreignId('controle_id')
+                  ->constrained('controles')
+                  ->onDelete('cascade');
+            $table->decimal('note', 4, 2);
             $table->timestamps();
+
+            // Unicité pour éviter plusieurs notes pour un même étudiant et contrôle
+            $table->unique(['etudiant_id', 'controle_id']);
         });
+
     }
 
     /**
