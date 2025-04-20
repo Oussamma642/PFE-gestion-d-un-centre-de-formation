@@ -43,8 +43,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('controles/module/{id}', [ControleController::class, "getControlesByModuleId"]);
 
     // ------ Notes
+    // Route::post('/notes', [NoteController::class, 'store']);
     Route::post('/notes', [NoteController::class, 'store']);
-
 });
 
 Route::post('/signup', [AuthController::class, 'signup']);

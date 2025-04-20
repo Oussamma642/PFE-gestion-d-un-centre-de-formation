@@ -94,26 +94,47 @@ function Dashboard() {
             ...prevNotes,
             [`${etudiantId}-${controleId}`]: value,
         }));
+        
+        console.log(notes);
+
     };
 
+
     // Submit notes
+
     const submitNotes = async () => {
         try {
             const payload = Object.entries(notes).map(([key, note]) => {
                 const [etudiantId, controleId] = key.split("-");
-                return {
-                    etudiant_id: etudiantId,
-                    controle_id: controleId,
-                    note,
-                };
+                return { etudiant_id: etudiantId, controle_id: controleId, note };
             });
-            await axiosClient.post("/notes", payload);
+    
+            console.log("Payload:", payload); // Debugging the payload
+    
+            await axiosClient.post("/notes", payload); // Ensure this is a POST request
             alert("Notes saved successfully!");
         } catch (error) {
             console.error("Error saving notes:", error);
             alert("Failed to save notes.");
         }
     };
+    // const submitNotes = async () => {
+    //     try {
+    //         const payload = Object.entries(notes).map(([key, note]) => {
+    //             const [etudiantId, controleId] = key.split("-");
+    //             return {
+    //                 etudiant_id: etudiantId,
+    //                 controle_id: controleId,
+    //                 note,
+    //             };
+    //         });
+    //         await axiosClient.post("/notes", payload);
+    //         alert("Notes saved successfully!");
+    //     } catch (error) {
+    //         console.error("Error saving notes:", error);
+    //         alert("Failed to save notes.");
+    //     }
+    // };
 
     return (
         <div className="min-h-screen bg-gray-100">
