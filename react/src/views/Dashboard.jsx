@@ -1,222 +1,3 @@
-// import React, { useEffect, useState } from "react";
-// import { useParams } from "react-router-dom";
-// import { Students } from "../assets/students";
-// import axiosClient from "../axios-client";
-// import {
-//     Book,
-//     Calendar,
-//     FileText,
-//     User,
-//     Download,
-//     Edit,
-//     Trash2,
-//     ChevronDown,
-//     ChevronRight,
-//     Briefcase,
-// } from "lucide-react";
-// import ModuleInfos from "../pages/ModuleInfos";
-// import SideBar from "../pages/SideBar";
-
-// function Dashboard() {
-//     const { annee } = useParams();
-//     const [etudiants, setEtudiants] = useState([]);
-//     const [modules, setModules] = useState([]);
-//     const [selectedModule, setSelectedModule] = useState(null);
-//     const [activeTab, setActiveTab] = useState("notes");
-//     const [loading, setLoading] = useState(true);
-//     const [students] = useState(Students);
-//     const [marsSemesterModules, setMarsSemesterModules] = useState([]);
-//     const [juilletSemesterModules, setJuilletSemesterModules] = useState([]);
-//     const [controles, setControles] = useState([]);
-
-//     // Fetch modules based on the year (annee)
-//     useEffect(() => {
-//         const fetchModules = async () => {
-//             setLoading(true);
-//             try {
-//                 const response = await axiosClient.get(
-//                     `/modules/annee/${annee}`
-//                 );
-//                 // Make sure modules is always an array
-//                 const modulesData = Array.isArray(response.data)
-//                     ? response.data
-//                     : [];
-
-//                 // if (modulesData){
-//                 //     setSelectedModule(modulesData[0]);
-//                 // }
-
-//                 // Filter modules by semester
-//                 setMarsSemesterModules(
-//                     modulesData.filter((module) => module.semestre === "Mars")
-//                 );
-//                 setJuilletSemesterModules(
-//                     modulesData.filter(
-//                         (module) => module.semestre === "Juillet"
-//                     )
-//                 );
-
-//                 // Set the first module as selected by default if available
-//                 if (modulesData.length > 0) {
-//                     setSelectedModule(modulesData[0]);
-//                 }
-//             } catch (error) {
-//                 console.error("Error fetching modules:", error);
-//                 // Initialize with empty arrays in case of error
-//                 setModules([]);
-//                 setMarsSemesterModules([]);
-//                 setJuilletSemesterModules([]);
-//             } finally {
-//                 setLoading(false);
-//             }
-//         };
-
-//         fetchModules();
-//     }, [annee]);
-
-//     // Fetch etudiants based on the year (annee)
-//     useEffect(() => {
-//         const fetchEtudiants = async () => {
-//             setLoading(true);
-//             try {
-//                 const response = await axiosClient.get(
-//                     `/etudiants/annee/${annee}`
-//                 );
-//                 // Make sure modules is always an array
-//                 const etudiantsData = Array.isArray(response.data)
-//                     ? response.data
-//                     : [];
-
-//                 // Set the first module as selected by default if available
-//                 if (etudiantsData.length > 0) {
-//                     setEtudiants(etudiantsData[0]);
-//                 }
-//             } catch (error) {
-//                 console.error("Error fetching modules:", error);
-//                 // Initialize with empty arrays in case of error
-//                 // setModules([]);
-//                 // setMarsSemesterModules([]);
-//                 // setJuilletSemesterModules([]);
-//                 setEtudiants([]);
-//             } finally {
-//                 setLoading(false);
-//             }
-//         };
-
-//         fetchEtudiants();
-//     }, [annee]);
-
-//     // // Fetch controles when a module is selected
-//     useEffect(() => {
-//         const fetchControles = async () => {
-//             if (selectedModule) {
-//                 setLoading(true);
-//                 try {
-//                     const response = await axiosClient.get(
-//                         `/controles/module/${selectedModule.id}`
-//                     );
-//                     setControles(response.data);
-//                     console.log(controles);
-//                 } catch (error) {
-//                     console.error("Error fetching controles:", error);
-//                     setControles([]);
-//                 } finally {
-//                     setLoading(false);
-//                 }
-//             }
-//         };
-
-//         fetchControles();
-//     }, [selectedModule]);
-
-//     // Calculate average grade for a student
-   
-    
-//     const calculateAverage = (student) => {
-//         const cc = student.note_cc * 0.3 || 0;
-//         const tp = student.note_tp * 0.2 || 0;
-//         const exam = student.note_exam * 0.5 || 0;
-//         return (cc + tp + exam).toFixed(2);
-//     };
-
-//     // Determine the year display text
-//     const yearDisplayText =
-//         annee === "première_annee" ? "Première Année" : "Deuxième Année";
-
-//     return (
-//         <div className="min-h-screen bg-gray-100">
-//             {/* Header */}
-//             <div className="bg-white shadow-sm">
-//                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-//                     <div className="flex justify-between items-center py-4">
-//                         <h1 className="text-2xl font-bold text-gray-900">
-//                             {yearDisplayText} - Gestion des Notes
-//                         </h1>
-//                         <div className="flex items-center space-x-2">
-//                             <span className="text-gray-600">
-//                                 Année Scolaire:{" "}
-//                                 {selectedModule?.annee_scolaire || "N/A"}
-//                             </span>
-//                         </div>
-//                     </div>
-//                 </div>
-//             </div>
-
-//             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-//                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-//                     {/* Sidebar with semesters and modules */}
-
-//                     <SideBar
-//                         setSelectedModule={setSelectedModule}
-//                         selectedModule={selectedModule}
-//                         marsSemesterModules={marsSemesterModules}
-//                         juilletSemesterModules={juilletSemesterModules}
-//                     />
-
-//                     {/* Main content area */}
-//                     <div className="lg:col-span-3">
-//                         {loading ? (
-//                             <div className="flex justify-center items-center h-64">
-//                                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-//                             </div>
-//                         ) : selectedModule ? (
-//                             <>
-//                                 {/* Module information card */}
-//                                 <ModuleInfos
-//                                     libelle={selectedModule.libelle}
-//                                     semestre={selectedModule.semestre}
-//                                     masse_horaire={selectedModule.masse_horaire}
-//                                     annee_scolaire={
-//                                         selectedModule.annee_scolaire
-//                                     }
-//                                     coefficient={selectedModule.coefficient}
-//                                 />
-//                                 {/* Tabs */}
-//                             </>
-//                         ) : (
-//                             <div className="bg-white rounded-lg shadow p-8 text-center">
-//                                 <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-//                                     <Book className="h-8 w-8 text-blue-500" />
-//                                 </div>
-//                                 <h3 className="text-lg font-medium text-gray-900 mb-1">
-//                                     Aucun module sélectionné
-//                                 </h3>
-//                                 <p className="text-gray-500">
-//                                     Veuillez sélectionner un module dans la
-//                                     liste à gauche pour afficher ses détails et
-//                                     les notes des étudiants.
-//                                 </p>
-//                             </div>
-//                         )}
-//                     </div>
-//                 </div>
-//             </div>
-//         </div>
-//     );
-// }
-
-// export default Dashboard;
-
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axiosClient from "../axios-client";
@@ -229,6 +10,8 @@ function Dashboard() {
     const [marsSemesterModules, setMarsSemesterModules] = useState([]);
     const [juilletSemesterModules, setJuilletSemesterModules] = useState([]);
     const [controles, setControles] = useState([]);
+    const [etudiants, setEtudiants] = useState([]);
+    const [notes, setNotes] = useState({});
     const [loading, setLoading] = useState(true);
 
     // Fetch modules based on the year (annee)
@@ -236,10 +19,20 @@ function Dashboard() {
         const fetchModules = async () => {
             setLoading(true);
             try {
-                const response = await axiosClient.get(`/modules/annee/${annee}`);
-                const modulesData = Array.isArray(response.data) ? response.data : [];
-                setMarsSemesterModules(modulesData.filter((module) => module.semestre === "Mars"));
-                setJuilletSemesterModules(modulesData.filter((module) => module.semestre === "Juillet"));
+                const response = await axiosClient.get(
+                    `/modules/annee/${annee}`
+                );
+                const modulesData = Array.isArray(response.data)
+                    ? response.data
+                    : [];
+                setMarsSemesterModules(
+                    modulesData.filter((module) => module.semestre === "Mars")
+                );
+                setJuilletSemesterModules(
+                    modulesData.filter(
+                        (module) => module.semestre === "Juillet"
+                    )
+                );
                 if (modulesData.length > 0) {
                     setSelectedModule(modulesData[0]); // Default to the first module
                 }
@@ -259,7 +52,9 @@ function Dashboard() {
             if (selectedModule) {
                 setLoading(true);
                 try {
-                    const response = await axiosClient.get(`/controles/module/${selectedModule.id}`);
+                    const response = await axiosClient.get(
+                        `/controles/module/${selectedModule.id}`
+                    );
                     setControles(response.data);
                 } catch (error) {
                     console.error("Error fetching controles:", error);
@@ -272,6 +67,53 @@ function Dashboard() {
 
         fetchControles();
     }, [selectedModule]);
+
+    // Fetch students for the selected year
+    useEffect(() => {
+        const fetchEtudiants = async () => {
+            setLoading(true);
+            try {
+                const response = await axiosClient.get(
+                    `/etudiants/annee/${annee}`
+                );
+                setEtudiants(response.data);
+            } catch (error) {
+                console.error("Error fetching students:", error);
+                setEtudiants([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchEtudiants();
+    }, [annee]);
+
+    // Handle note change
+    const handleNoteChange = (etudiantId, controleId, value) => {
+        setNotes((prevNotes) => ({
+            ...prevNotes,
+            [`${etudiantId}-${controleId}`]: value,
+        }));
+    };
+
+    // Submit notes
+    const submitNotes = async () => {
+        try {
+            const payload = Object.entries(notes).map(([key, note]) => {
+                const [etudiantId, controleId] = key.split("-");
+                return {
+                    etudiant_id: etudiantId,
+                    controle_id: controleId,
+                    note,
+                };
+            });
+            await axiosClient.post("/notes", payload);
+            alert("Notes saved successfully!");
+        } catch (error) {
+            console.error("Error saving notes:", error);
+            alert("Failed to save notes.");
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gray-100">
@@ -298,29 +140,127 @@ function Dashboard() {
                                     libelle={selectedModule.libelle}
                                     semestre={selectedModule.semestre}
                                     masse_horaire={selectedModule.masse_horaire}
-                                    annee_scolaire={selectedModule.annee_scolaire}
+                                    annee_scolaire={
+                                        selectedModule.annee_scolaire
+                                    }
                                     coefficient={selectedModule.coefficient}
                                 />
 
-                                {/* Controles List */}
-                                <div className="mt-6">
-                                    <h2 className="text-xl font-bold mb-4">Controles</h2>
-                                    {controles.length > 0 ? (
-                                        <ul className="space-y-4">
-                                            {controles.map((controle) => (
-                                                <li
-                                                    key={controle.id}
-                                                    className="bg-white shadow rounded-lg p-4"
-                                                >
-                                                    <p className="text-gray-700">
-                                                        <strong>Numéro de contrôle:</strong> {controle.numero_controle}
-                                                    </p>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    ) : (
-                                        <p className="text-gray-500">Aucun contrôle trouvé pour ce module.</p>
-                                    )}
+                                {/* Notes Table */}
+
+                                <div className="mt-8 bg-white rounded-lg shadow-md p-6">
+                                    <div className="flex justify-between items-center mb-6">
+                                        <h2 className="text-2xl font-bold text-gray-800">
+                                            Notes des Étudiants
+                                        </h2>
+                                        <button
+                                            onClick={submitNotes}
+                                            className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors duration-200 flex items-center"
+                                        >
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                className="h-5 w-5 mr-2"
+                                                viewBox="0 0 20 20"
+                                                fill="currentColor"
+                                            >
+                                                <path
+                                                    fillRule="evenodd"
+                                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                    clipRule="evenodd"
+                                                />
+                                            </svg>
+                                            Enregistrer
+                                        </button>
+                                    </div>
+
+                                    <div className="overflow-x-auto">
+                                        <table className="min-w-full border-collapse">
+                                            <thead>
+                                                <tr className="bg-gray-50">
+                                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200 sticky left-0 bg-gray-50">
+                                                        Étudiant
+                                                    </th>
+                                                    {controles.map(
+                                                        (controle) => (
+                                                            <th
+                                                                key={
+                                                                    controle.id
+                                                                }
+                                                                className="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b border-gray-200"
+                                                            >
+                                                                Contrôle{" "}
+                                                                {
+                                                                    controle.numero_controle
+                                                                }
+                                                            </th>
+                                                        )
+                                                    )}
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-200">
+                                                {etudiants.map(
+                                                    (etudiant, index) => (
+                                                        <tr
+                                                            key={etudiant.id}
+                                                            className={
+                                                                index % 2 === 0
+                                                                    ? "bg-white"
+                                                                    : "bg-gray-50"
+                                                            }
+                                                        >
+                                                            <td className="px-4 py-3 text-sm text-gray-800 font-medium sticky left-0 bg-inherit">
+                                                                {etudiant.nom}{" "}
+                                                                {
+                                                                    etudiant.prenom
+                                                                }
+                                                            </td>
+                                                            {controles.map(
+                                                                (controle) => (
+                                                                    <td
+                                                                        key={
+                                                                            controle.id
+                                                                        }
+                                                                        className="px-4 py-3"
+                                                                    >
+                                                                        <input
+                                                                            type="number"
+                                                                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-center"
+                                                                            value={
+                                                                                notes[
+                                                                                    `${etudiant.id}-${controle.id}`
+                                                                                ] ||
+                                                                                ""
+                                                                            }
+                                                                            onChange={(
+                                                                                e
+                                                                            ) =>
+                                                                                handleNoteChange(
+                                                                                    etudiant.id,
+                                                                                    controle.id,
+                                                                                    e
+                                                                                        .target
+                                                                                        .value
+                                                                                )
+                                                                            }
+                                                                            min="0"
+                                                                            max="20"
+                                                                            step="0.5"
+                                                                            placeholder="0-20"
+                                                                        />
+                                                                    </td>
+                                                                )
+                                                            )}
+                                                        </tr>
+                                                    )
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <div className="mt-4 text-right text-sm text-gray-500">
+                                        {etudiants.length} étudiants ·{" "}
+                                        {controles.length} contrôles
+                                    </div>
                                 </div>
                             </>
                         ) : (
@@ -329,7 +269,9 @@ function Dashboard() {
                                     Aucun module sélectionné
                                 </h3>
                                 <p className="text-gray-500">
-                                    Veuillez sélectionner un module dans la liste à gauche pour afficher ses détails et les contrôles associés.
+                                    Veuillez sélectionner un module dans la
+                                    liste à gauche pour afficher ses détails et
+                                    les contrôles associés.
                                 </p>
                             </div>
                         )}

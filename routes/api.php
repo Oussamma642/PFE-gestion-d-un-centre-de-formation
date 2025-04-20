@@ -1,13 +1,13 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\ControleController;
 use App\Http\Controllers\Api\EtudiantController;
 use App\Http\Controllers\Api\ModuleController;
-use App\Http\Controllers\Api\ControleController;
-
+use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\NoteController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,31 +20,30 @@ use App\Http\Controllers\Api\ControleController;
 |
 */
 
-Route::middleware('auth:sanctum')->group(function(){    
-    
+Route::middleware('auth:sanctum')->group(function () {
+
     Route::get('/user', function (Request $request) {
-            return $request->user();
+        return $request->user();
     });
 
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::apiResource('/users', UserController::class);
 
-    
     // ------ Etudiants
     Route::apiResource('/etudiants', EtudiantController::class);
     Route::get('/etudiants/annee/{annee}', [EtudiantController::class, 'showByAnnee']);
-
 
     // ------ Modules
     // Route::get('/modules/annee/{annee}', [ModuleController::class, 'showByAnnee']);
     Route::get('/modules/annee/{annee}', [ModuleController::class, 'showByAnnee']);
     Route::apiResource('/modules', ModuleController::class);
 
-
     // ------ Controles
     Route::get('controles/module/{id}', [ControleController::class, "getControlesByModuleId"]);
-    
+
+    // ------ Notes
+    Route::post('/notes', [NoteController::class, 'store']);
 
 });
 

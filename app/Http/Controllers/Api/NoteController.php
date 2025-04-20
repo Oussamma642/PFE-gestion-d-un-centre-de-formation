@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -18,9 +17,18 @@ class NoteController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+
     public function store(Request $request)
     {
-        //
+        $notes = $request->all(); // Expecting an array of notes
+        foreach ($notes as $note) {
+            Note::updateOrCreate(
+                ['etudiant_id' => $note['etudiant_id'], 'controle_id' => $note['controle_id']],
+                ['note' => $note['note']]
+            );
+        }
+
+        return response()->json(['message' => 'Notes saved successfully!']);
     }
 
     /**
