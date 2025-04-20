@@ -5,9 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-use App\Models\Module;
-
-class ControleController extends Controller
+class NoteController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -24,26 +22,6 @@ class ControleController extends Controller
     {
         //
     }
-
-    /**
-     * Display the specified resource.
-    */
-
-
-    public function getControlesByModuleId($id)
-    {
-        // Find the module by ID and load the associated controles
-        $module = Module::find($id);
-    
-        // Check if the module exists
-        if (!$module) {
-            return response()->json(['message' => 'Module not found'], 404);
-        }
-    
-        // Get all controles related to the module
-        return $module->controles; // This will return the collection of controles
-    }
-    
 
     /**
      * Display the specified resource.

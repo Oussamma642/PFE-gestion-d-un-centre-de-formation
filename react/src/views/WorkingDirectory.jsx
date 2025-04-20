@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Book, BarChart2, ChevronDown, ChevronRight } from "lucide-react";
 
 const WorkingDirectory = () => {
     const [selectedOption, setSelectedOption] = useState(null);
-    const navigate = useNavigate();
 
+
+    const navigate = useNavigate();
     const options = [
         {
             id: 1,
@@ -17,8 +18,16 @@ const WorkingDirectory = () => {
             hoverColor: "hover:bg-blue-100",
             iconBg: "bg-blue-100",
             subOptions: [
-                { id: 1, title: "Première année", icon: <ChevronRight size={16} /> },
-                { id: 2, title: "Deuxième année", icon: <ChevronRight size={16} /> },
+                {
+                    id: 1,
+                    title: "Première année",
+                    icon: <ChevronRight size={16} />,
+                },
+                {
+                    id: 2,
+                    title: "Deuxième année",
+                    icon: <ChevronRight size={16} />,
+                },
             ],
         },
         {
@@ -32,20 +41,6 @@ const WorkingDirectory = () => {
             subOptions: [],
         },
     ];
-
-    const handleSubOptionClick = (subOptionId) => {
-        switch (subOptionId) {
-            case 1:
-                navigate("/dashboard/premiere_annee");
-                break;
-            case 2:
-                navigate("/dashboard/deuxieme_annee");
-                break;
-            default:
-                navigate("/dashboard/premiere_annee");
-                break;
-        }
-    };
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -70,14 +65,34 @@ const WorkingDirectory = () => {
         },
     };
 
+    // function getModulesBY
+
+    const handleSubOptionClick = (subOptionId) => {
+        switch (subOptionId) {
+            case 1:
+                navigate("/dashboard/premiere_annee");
+                break;
+            case 2:
+                navigate("/dashboard/deuxieme_annee");
+                break;
+            default:
+                navigate("/dashboard/premiere_annee");
+                break;
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-6xl mx-auto">
                 <div className="mb-10 text-center">
-                    <h1 className="text-3xl font-bold text-slate-800 mb-2">Tableau de Bord</h1>
-                    <p className="text-slate-600">Gérez les notes et les performances des étudiants</p>
+                    <h1 className="text-3xl font-bold text-slate-800 mb-2">
+                        Tableau de Bord
+                    </h1>
+                    <p className="text-slate-600">
+                        Gérez les notes et les performances des étudiants
+                    </p>
                 </div>
-                
+
                 <motion.div
                     variants={containerVariants}
                     initial="hidden"
@@ -104,9 +119,13 @@ const WorkingDirectory = () => {
                             >
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center space-x-4">
-                                        <div className={`flex items-center justify-center w-12 h-12 rounded-full ${option.iconBg}`}>
-                                            {typeof option.icon === 'string' ? (
-                                                <span className="text-2xl">{option.icon}</span>
+                                        <div
+                                            className={`flex items-center justify-center w-12 h-12 rounded-full ${option.iconBg}`}
+                                        >
+                                            {typeof option.icon === "string" ? (
+                                                <span className="text-2xl">
+                                                    {option.icon}
+                                                </span>
                                             ) : (
                                                 option.icon
                                             )}
@@ -121,9 +140,11 @@ const WorkingDirectory = () => {
                                         </div>
                                     </div>
                                     {option.subOptions.length > 0 && (
-                                        <ChevronDown 
+                                        <ChevronDown
                                             className={`text-slate-500 transition-transform duration-300 ${
-                                                selectedOption === option.id ? "rotate-180" : ""
+                                                selectedOption === option.id
+                                                    ? "rotate-180"
+                                                    : ""
                                             }`}
                                             size={20}
                                         />
@@ -133,7 +154,7 @@ const WorkingDirectory = () => {
 
                             {selectedOption === option.id &&
                                 option.subOptions.length > 0 && (
-                                    <motion.div 
+                                    <motion.div
                                         initial={{ opacity: 0, height: 0 }}
                                         animate={{ opacity: 1, height: "auto" }}
                                         exit={{ opacity: 0, height: 0 }}
@@ -166,8 +187,8 @@ const WorkingDirectory = () => {
                         </motion.div>
                     ))}
                 </motion.div>
-                
-                <motion.div 
+
+                <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.6 }}

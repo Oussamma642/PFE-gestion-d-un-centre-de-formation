@@ -14,13 +14,9 @@ class Controle extends Model
         return $this->belongsTo(Module::class);
     }
 
-    public function etudiant()
-    {
-        return $this->belongsTo(Etudiant::class);
-    }
 
-    public function filiere()
+    public function notes()
     {
-        return $this->belongsTo(Filiere::class);
+        return $this->hasMany(Note::class);
     }
 }

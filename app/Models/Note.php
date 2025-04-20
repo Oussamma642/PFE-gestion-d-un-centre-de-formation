@@ -15,8 +15,8 @@ class Note extends Model
         return $this->belongsTo(Etudiant::class);
     }
 
-    public function module()
+    public function controle()
     {
-        return $this->belongsTo(Module::class);
+        return $this->belongsTo(Controle::class);
     }
 }
