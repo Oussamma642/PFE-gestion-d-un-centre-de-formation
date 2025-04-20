@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Controle extends Model
 {
     use HasFactory;
-    protected $fillable = ['filiere_id', 'module_id', 'etudiant_id', 'numero_controle', 'note', 'annee_scolaire'];
+    protected $fillable = ['module_id', 'numero_controle'];
 
     public function module()
     {

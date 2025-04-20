@@ -69,6 +69,28 @@ function Dashboard() {
     }, [annee]);
 
 
+    // fetch the controles of the selected module
+
+    // useEffect(()=>{
+
+    //     const fetchedControles = async()=>{
+    //         setLoading(true);
+
+    //         if (!selectedModule)
+    //             return;
+
+    //         try {
+                
+    //             const response = await axiosClient.get(`controles/${}`)
+
+    //         } catch (error) {
+                
+    //         }
+
+    //     }
+
+    // }, [selectedModule]);
+
     // Fetch etudiants based on the year (annee)
     useEffect(()=>{
         const fetchEtudiants = async () => {
@@ -111,7 +133,6 @@ function Dashboard() {
         const exam = student.note_exam * 0.5 || 0;
         return (cc + tp + exam).toFixed(2);
     };
-
 
     // Determine the year display text
     const yearDisplayText =

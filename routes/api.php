@@ -40,6 +40,10 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('/modules/annee/{annee}', [ModuleController::class, 'showByAnnee']);
     Route::apiResource('/modules', ModuleController::class);
 
+
+    // ------ Controles
+    
+
 });
 
 Route::post('/signup', [AuthController::class, 'signup']);

@@ -8,7 +8,7 @@ class Module extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['libelle', 'coefficient', 'annee', 'semestre', 'annee_scolaire', 'filiere_id'];
+    protected $fillable = ['libelle', 'coefficient', 'annee', 'semestre', 'annee_scolaire', 'nombre_controles', 'filiere_id'];
 
     public function filiere()
     {

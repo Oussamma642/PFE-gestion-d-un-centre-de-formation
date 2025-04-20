@@ -8,7 +8,7 @@ class Note extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['etudiant_id', 'module_id', 'note'];
+    protected $fillable = ['etudiant_id', 'controle_id', 'note'];
 
     public function etudiant()
     {
