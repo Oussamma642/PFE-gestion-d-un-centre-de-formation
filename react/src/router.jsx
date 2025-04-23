@@ -5,8 +5,8 @@ import NotFound from "./views/NotFound";
 import DefaultLayout from "./components/DefaultLayout";
 import GuestLayout from "./components/GuestLayout";
 import Dashboard from "./views/Dashboard";
-import Francais from "./views/Francais";
 import WorkingDirectory from "./views/WorkingDirectory";
+import GestionResources from "./views/GestionResources";
 
 const router = createBrowserRouter([
   // DefaultLayout
@@ -19,15 +19,14 @@ const router = createBrowserRouter([
         element: <WorkingDirectory/>
       },
       {
-        // path: "/dashboard/:annee",
         path: "/dashboard/filiere/:filiere/annee/:annee",
         element: <Dashboard />,
       },
-      
       {
-        path: "/dashboard/francais",
-        element: <Francais />,
-      },
+        path:"/dashboard/resources",
+        element:<GestionResources/>
+      }
+
     ],
   },
   

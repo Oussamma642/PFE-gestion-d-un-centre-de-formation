@@ -78,6 +78,17 @@ const WorkingDirectory = () => {
             hasFiliere: false,
             subOptions: [],
         },
+        {
+            id: 3,
+            title: "Gestion des ressources",
+            description: "Gérez les ressources pédagogiques",
+            icon: <Book className="text-purple-600" />, // Replace with an appropriate icon
+            color: "bg-purple-50 border-purple-200",
+            hoverColor: "hover:bg-purple-100",
+            iconBg: "bg-purple-100",
+            hasFiliere: false,
+            subOptions: [],
+        },
     ];
 
     const containerVariants = {
@@ -147,7 +158,7 @@ const WorkingDirectory = () => {
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6"
+                    className="flex flex-col gap-6"
                 >
                     {options.map((option) => (
                         <motion.div
