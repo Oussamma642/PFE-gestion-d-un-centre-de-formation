@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\EtudiantController;
 use App\Http\Controllers\Api\ModuleController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\NoteController;
+use App\Http\Controllers\Api\FiliereController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -27,16 +28,20 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::post('/logout', [AuthController::class, 'logout']);
-
     Route::apiResource('/users', UserController::class);
+
+    // Filieres
+    Route::apiResource('/filieres', FiliereController::class);
 
     // ------ Etudiants
     Route::apiResource('/etudiants', EtudiantController::class);
-    Route::get('/etudiants/annee/{annee}', [EtudiantController::class, 'showByAnnee']);
+    // Route::get('/etudiants/annee/{annee}', [EtudiantController::class, 'showByAnnee']);
+    Route::get('/etudiants/annee/{annee}/filiere/{filiere}', [EtudiantController::class, 'showByAnneeFiliere']);
 
     // ------ Modules
+    // 
     // Route::get('/modules/annee/{annee}', [ModuleController::class, 'showByAnnee']);
-    Route::get('/modules/annee/{annee}', [ModuleController::class, 'showByAnnee']);
+    Route::get('/modules/annee/{annee}/filiere/{filiere}', [ModuleController::class, 'showByAnneeFiliere']);
     Route::apiResource('/modules', ModuleController::class);
 
     // ------ Controles
@@ -47,6 +52,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/notes/module/{moduleId}', [NoteController::class, 'getNotesByModuleId']);
 
     Route::post('/notes', [NoteController::class, 'store']);
+
+    Route::get('/notes/export/{moduleId}', [NoteController::class, 'exportNotes']);
+
 });
 
 Route::post('/signup', [AuthController::class, 'signup']);

@@ -4,8 +4,10 @@ import axiosClient from "../axios-client";
 import SideBar from "../pages/SideBar";
 import ModuleInfos from "../pages/ModuleInfos";
 
+import { Download } from "lucide-react";
+
 function Dashboard() {
-    const { annee } = useParams();
+    const { annee, filiere } = useParams();
     const [selectedModule, setSelectedModule] = useState(null);
     const [marsSemesterModules, setMarsSemesterModules] = useState([]);
     const [juilletSemesterModules, setJuilletSemesterModules] = useState([]);
@@ -14,15 +16,28 @@ function Dashboard() {
     const [notes, setNotes] = useState({});
     const [loading, setLoading] = useState(true);
 
-    // Fetch modules based on the year (annee)
+    // Fetch modules based on the year (annee) and the filiere
     useEffect(() => {
         const fetchModules = async () => {
             setLoading(true);
             try {
-                const response = await axiosClient.get(`/modules/annee/${annee}`);
-                const modulesData = Array.isArray(response.data) ? response.data : [];
-                setMarsSemesterModules(modulesData.filter((module) => module.semestre === "Mars"));
-                setJuilletSemesterModules(modulesData.filter((module) => module.semestre === "Juillet"));
+                const response = await axiosClient.get(
+                    `/modules/annee/${annee}/filiere/${filiere}`
+                );
+                const modulesData = Array.isArray(response.data)
+                    ? response.data
+                    : [];
+
+                    console.log(modulesData);
+
+                setMarsSemesterModules(
+                    modulesData.filter((module) => module.semestre === "Mars")
+                );
+                setJuilletSemesterModules(
+                    modulesData.filter(
+                        (module) => module.semestre === "Juillet"
+                    )
+                );
                 if (modulesData.length > 0) {
                     setSelectedModule(modulesData[0]); // Default to the first module
                 }
@@ -42,7 +57,9 @@ function Dashboard() {
             if (selectedModule) {
                 setLoading(true);
                 try {
-                    const response = await axiosClient.get(`/controles/module/${selectedModule.id}`);
+                    const response = await axiosClient.get(
+                        `/controles/module/${selectedModule.id}`
+                    );
                     setControles(response.data);
                 } catch (error) {
                     console.error("Error fetching controles:", error);
@@ -56,12 +73,14 @@ function Dashboard() {
         fetchControles();
     }, [selectedModule]);
 
-    // Fetch students for the selected year
+    // Fetch students for the selected year and filiere
     useEffect(() => {
         const fetchEtudiants = async () => {
             setLoading(true);
             try {
-                const response = await axiosClient.get(`/etudiants/annee/${annee}`);
+                const response = await axiosClient.get(
+                    `/etudiants/annee/${annee}/filiere/${filiere}`
+                );
                 setEtudiants(response.data);
             } catch (error) {
                 console.error("Error fetching students:", error);
@@ -79,14 +98,17 @@ function Dashboard() {
         const fetchNotes = async () => {
             if (selectedModule) {
                 try {
-                    const response = await axiosClient.get(`/notes/module/${selectedModule.id}`);
+                    const response = await axiosClient.get(
+                        `/notes/module/${selectedModule.id}`
+                    );
                     const fetchedNotes = response.data;
                     console.log(fetchedNotes);
 
                     // Map notes to the state format
                     const notesMap = {};
                     fetchedNotes.forEach((note) => {
-                        notesMap[`${note.etudiant_id}-${note.controle_id}`] = note.note;
+                        notesMap[`${note.etudiant_id}-${note.controle_id}`] =
+                            note.note;
                     });
                     setNotes(notesMap);
                 } catch (error) {
@@ -111,7 +133,11 @@ function Dashboard() {
         try {
             const payload = Object.entries(notes).map(([key, note]) => {
                 const [etudiantId, controleId] = key.split("-");
-                return { etudiant_id: etudiantId, controle_id: controleId, note };
+                return {
+                    etudiant_id: etudiantId,
+                    controle_id: controleId,
+                    note,
+                };
             });
 
             await axiosClient.post("/notes", payload);
@@ -119,6 +145,35 @@ function Dashboard() {
         } catch (error) {
             console.error("Error saving notes:", error);
             alert("Failed to save notes.");
+        }
+    };
+
+    // Handle export
+    const handleExport = async () => {
+
+
+        try {
+            const response = await axiosClient.get(
+                `/notes/export/${selectedModule.id}`,
+                {
+                    responseType: "blob", // Important for downloading files
+                }
+            );
+
+            // Create a URL for the file
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute(
+                "download",
+                `notes_module_${selectedModule.id}.xlsx`
+            );
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            console.error("Error exporting notes:", error);
+            alert("Failed to export notes.");
         }
     };
 
@@ -144,7 +199,9 @@ function Dashboard() {
                                     libelle={selectedModule.libelle}
                                     semestre={selectedModule.semestre}
                                     masse_horaire={selectedModule.masse_horaire}
-                                    annee_scolaire={selectedModule.annee_scolaire}
+                                    annee_scolaire={
+                                        selectedModule.annee_scolaire
+                                    }
                                     coefficient={selectedModule.coefficient}
                                 />
 
@@ -153,6 +210,17 @@ function Dashboard() {
                                         <h2 className="text-2xl font-bold text-gray-800">
                                             Notes des Étudiants
                                         </h2>
+
+                                        <button
+                                            onClick={handleExport}
+                                            className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg flex items-center transition-colors"
+                                        >
+                                            <Download
+                                                size={16}
+                                                className="mr-2"
+                                            />
+                                            Exporter
+                                        </button>
                                         <button
                                             onClick={submitNotes}
                                             className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors duration-200 flex items-center"
@@ -168,70 +236,92 @@ function Dashboard() {
                                                     <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200 sticky left-0 bg-gray-50">
                                                         Étudiant
                                                     </th>
-                                                    {controles.map((controle) => (
-                                                        <th
-                                                            key={controle.id}
-                                                            className="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b border-gray-200"
-                                                        >
-                                                            Contrôle {controle.numero_controle}
-                                                        </th>
-                                                    ))}
+                                                    {controles.map(
+                                                        (controle) => (
+                                                            <th
+                                                                key={
+                                                                    controle.id
+                                                                }
+                                                                className="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b border-gray-200"
+                                                            >
+                                                                Contrôle{" "}
+                                                                {
+                                                                    controle.numero_controle
+                                                                }
+                                                            </th>
+                                                        )
+                                                    )}
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-200">
-                                                {etudiants.map((etudiant, index) => (
-                                                    <tr
-                                                        key={etudiant.id}
-                                                        className={
-                                                            index % 2 === 0
-                                                                ? "bg-white"
-                                                                : "bg-gray-50"
-                                                        }
-                                                    >
-                                                        <td className="px-4 py-3 text-sm text-gray-800 font-medium sticky left-0 bg-inherit">
-                                                            {etudiant.nom} {etudiant.prenom}
-                                                        </td>
-                                                        {controles.map((controle) => (
-                                                            <td
-                                                                key={controle.id}
-                                                                className="px-4 py-3"
-                                                            >
-                                                                <input
-                                                                    type="number"
-                                                                    className={`w-full border rounded-md px-3 py-2 text-center ${
-                                                                        notes[
-                                                                            `${etudiant.id}-${controle.id}`
-                                                                        ]
-                                                                            ? "bg-green-100"
-                                                                            : ""
-                                                                    }`}
-                                                                    value={
-                                                                        notes[
-                                                                            `${etudiant.id}-${controle.id}`
-                                                                        ] || ""
-                                                                    }
-                                                                    onChange={(e) =>
-                                                                        handleNoteChange(
-                                                                            etudiant.id,
-                                                                            controle.id,
-                                                                            e.target.value
-                                                                        )
-                                                                    }
-                                                                    min="0"
-                                                                    max="20"
-                                                                    step="0.5"
-                                                                    placeholder="0-20"
-                                                                />
+                                                {etudiants.map(
+                                                    (etudiant, index) => (
+                                                        <tr
+                                                            key={etudiant.id}
+                                                            className={
+                                                                index % 2 === 0
+                                                                    ? "bg-white"
+                                                                    : "bg-gray-50"
+                                                            }
+                                                        >
+                                                            <td className="px-4 py-3 text-sm text-gray-800 font-medium sticky left-0 bg-inherit">
+                                                                {etudiant.nom}{" "}
+                                                                {
+                                                                    etudiant.prenom
+                                                                }
                                                             </td>
-                                                        ))}
-                                                    </tr>
-                                                ))}
+                                                            {controles.map(
+                                                                (controle) => (
+                                                                    <td
+                                                                        key={
+                                                                            controle.id
+                                                                        }
+                                                                        className="px-4 py-3"
+                                                                    >
+                                                                        <input
+                                                                            type="number"
+                                                                            className={`w-full border rounded-md px-3 py-2 text-center ${
+                                                                                notes[
+                                                                                    `${etudiant.id}-${controle.id}`
+                                                                                ]
+                                                                                    ? "bg-green-100"
+                                                                                    : ""
+                                                                            }`}
+                                                                            value={
+                                                                                notes[
+                                                                                    `${etudiant.id}-${controle.id}`
+                                                                                ] ||
+                                                                                ""
+                                                                            }
+                                                                            onChange={(
+                                                                                e
+                                                                            ) =>
+                                                                                handleNoteChange(
+                                                                                    etudiant.id,
+                                                                                    controle.id,
+                                                                                    e
+                                                                                        .target
+                                                                                        .value
+                                                                                )
+                                                                            }
+                                                                            min="0"
+                                                                            max="20"
+                                                                            step="0.5"
+                                                                            placeholder="0-20"
+                                                                        />
+                                                                    </td>
+                                                                )
+                                                            )}
+                                                        </tr>
+                                                    )
+                                                )}
                                             </tbody>
                                         </table>
                                     </div>
 
                                     <div className="mt-4 text-right text-sm text-gray-500">
-                                        {etudiants.length} étudiants · {controles.length} contrôles
+                                        {etudiants.length} étudiants ·{" "}
+                                        {controles.length} contrôles
                                     </div>
                                 </div>
                             </>
@@ -241,7 +331,9 @@ function Dashboard() {
                                     Aucun module sélectionné
                                 </h3>
                                 <p className="text-gray-500">
-                                    Veuillez sélectionner un module dans la liste à gauche pour afficher ses détails et les contrôles associés.
+                                    Veuillez sélectionner un module dans la
+                                    liste à gauche pour afficher ses détails et
+                                    les contrôles associés.
                                 </p>
                             </div>
                         )}

@@ -1,13 +1,49 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Book, BarChart2, ChevronDown, ChevronRight } from "lucide-react";
+import {
+    Book,
+    BarChart2,
+    ChevronDown,
+    ChevronRight,
+    Loader,
+} from "lucide-react";
+import axios from "axios";
+
+import axiosClient from "../axios-client";
 
 const WorkingDirectory = () => {
     const [selectedOption, setSelectedOption] = useState(null);
-
+    const [selectedFiliere, setSelectedFiliere] = useState(null);
+    const [filieres, setFilieres] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
     const navigate = useNavigate();
+
+    // dashboard/:filieres/premiere_annee
+
+    // Récupération des filières depuis l'API
+    useEffect(() => {
+        const fetchFilieres = async () => {
+            setLoading(true);
+            try {
+                const response = await axiosClient.get("/filieres");
+                setFilieres(response.data);
+                setError(null);
+            } catch (err) {
+                console.error("Erreur lors du chargement des filières:", err);
+                setError(
+                    "Impossible de charger les filières. Veuillez réessayer plus tard."
+                );
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchFilieres();
+    }, []);
+
     const options = [
         {
             id: 1,
@@ -17,6 +53,7 @@ const WorkingDirectory = () => {
             color: "bg-blue-50 border-blue-200",
             hoverColor: "hover:bg-blue-100",
             iconBg: "bg-blue-100",
+            hasFiliere: true,
             subOptions: [
                 {
                     id: 1,
@@ -38,6 +75,7 @@ const WorkingDirectory = () => {
             color: "bg-emerald-50 border-emerald-200",
             hoverColor: "hover:bg-emerald-100",
             iconBg: "bg-emerald-100",
+            hasFiliere: false,
             subOptions: [],
         },
     ];
@@ -65,20 +103,32 @@ const WorkingDirectory = () => {
         },
     };
 
-    // function getModulesBY
-
     const handleSubOptionClick = (subOptionId) => {
+        if (!selectedFiliere && selectedOption === 1) {
+            return; // Ne pas naviguer si aucune filière n'est sélectionnée pour l'option "Saisir les notes"
+        }
+
         switch (subOptionId) {
             case 1:
-                navigate("/dashboard/premiere_annee");
+                navigate(
+                    `/dashboard/filiere/${selectedFiliere}/annee/premiere_annee`
+                );
                 break;
             case 2:
-                navigate("/dashboard/deuxieme_annee");
+                navigate(
+                    `/dashboard/filiere/${selectedFiliere}/annee/deuxieme_annee`
+                );
                 break;
             default:
-                navigate("/dashboard/premiere_annee");
+                navigate(
+                    `/dashboard/filiere/${selectedFiliere}/annee/premiere_annee`
+                );
                 break;
         }
+    };
+
+    const handleFiliereSelect = (filiereId) => {
+        setSelectedFiliere(filiereId);
     };
 
     return (
@@ -139,7 +189,8 @@ const WorkingDirectory = () => {
                                             </p>
                                         </div>
                                     </div>
-                                    {option.subOptions.length > 0 && (
+                                    {(option.subOptions.length > 0 ||
+                                        option.hasFiliere) && (
                                         <ChevronDown
                                             className={`text-slate-500 transition-transform duration-300 ${
                                                 selectedOption === option.id
@@ -152,38 +203,100 @@ const WorkingDirectory = () => {
                                 </div>
                             </motion.button>
 
-                            {selectedOption === option.id &&
-                                option.subOptions.length > 0 && (
-                                    <motion.div
-                                        initial={{ opacity: 0, height: 0 }}
-                                        animate={{ opacity: 1, height: "auto" }}
-                                        exit={{ opacity: 0, height: 0 }}
-                                        transition={{ duration: 0.3 }}
-                                        className="border-t border-slate-200"
-                                    >
-                                        <div className="p-4 space-y-1">
-                                            {option.subOptions.map(
-                                                (subOption) => (
-                                                    <motion.button
-                                                        key={subOption.id}
-                                                        whileHover={{ x: 5 }}
-                                                        onClick={() =>
-                                                            handleSubOptionClick(
-                                                                subOption.id
-                                                            )
-                                                        }
-                                                        className="w-full px-4 py-3 text-left hover:bg-slate-100 rounded-lg transition-colors duration-200 flex items-center justify-between"
-                                                    >
-                                                        <span className="text-slate-700 font-medium">
-                                                            {subOption.title}
-                                                        </span>
-                                                        {subOption.icon}
-                                                    </motion.button>
-                                                )
+                            {selectedOption === option.id && (
+                                <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: "auto" }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="border-t border-slate-200"
+                                >
+                                    {/* Sélection de filière si applicable */}
+                                    {option.hasFiliere && (
+                                        <div className="p-4">
+                                            <h3 className="text-md font-medium text-slate-700 mb-3">
+                                                Sélectionnez une filière:
+                                            </h3>
+                                            {loading ? (
+                                                <div className="flex justify-center p-4">
+                                                    <Loader className="animate-spin text-blue-600" />
+                                                </div>
+                                            ) : error ? (
+                                                <div className="p-3 bg-red-50 text-red-700 rounded-lg">
+                                                    {error}
+                                                </div>
+                                            ) : (
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
+                                                    {filieres.map((filiere) => (
+                                                        <motion.button
+                                                            key={filiere.id}
+                                                            whileHover={{
+                                                                scale: 1.02,
+                                                            }}
+                                                            whileTap={{
+                                                                scale: 0.98,
+                                                            }}
+                                                            onClick={() =>
+                                                                handleFiliereSelect(
+                                                                    filiere.id
+                                                                )
+                                                            }
+                                                            className={`p-3 rounded-lg border transition-all text-left flex items-center justify-between ${
+                                                                selectedFiliere ===
+                                                                filiere.id
+                                                                    ? "bg-blue-100 border-blue-300"
+                                                                    : "bg-white border-slate-200 hover:bg-slate-50"
+                                                            }`}
+                                                        >
+                                                            <span>
+                                                                {
+                                                                    filiere.libelle
+                                                                }
+                                                            </span>
+                                                            {selectedFiliere ===
+                                                                filiere.id && (
+                                                                <span className="text-blue-600 font-bold">
+                                                                    ✔
+                                                                </span>
+                                                            )}
+                                                        </motion.button>
+                                                    ))}
+                                                </div>
                                             )}
                                         </div>
-                                    </motion.div>
-                                )}
+                                    )}{" "}
+                                    {/* Affichage des sous-options si la filière est sélectionnée ou si pas besoin de filière */}
+                                    {option.subOptions.length > 0 &&
+                                        (!option.hasFiliere ||
+                                            selectedFiliere) && (
+                                            <div className="p-4 space-y-1">
+                                                {option.subOptions.map(
+                                                    (subOption) => (
+                                                        <motion.button
+                                                            key={subOption.id}
+                                                            whileHover={{
+                                                                x: 5,
+                                                            }}
+                                                            onClick={() =>
+                                                                handleSubOptionClick(
+                                                                    subOption.id
+                                                                )
+                                                            }
+                                                            className="w-full px-4 py-3 text-left hover:bg-slate-100 rounded-lg transition-colors duration-200 flex items-center justify-between"
+                                                        >
+                                                            <span className="text-slate-700 font-medium">
+                                                                {
+                                                                    subOption.title
+                                                                }
+                                                            </span>
+                                                            {subOption.icon}
+                                                        </motion.button>
+                                                    )
+                                                )}
+                                            </div>
+                                        )}
+                                </motion.div>
+                            )}
                         </motion.div>
                     ))}
                 </motion.div>

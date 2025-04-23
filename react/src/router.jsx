@@ -19,7 +19,8 @@ const router = createBrowserRouter([
         element: <WorkingDirectory/>
       },
       {
-        path: "/dashboard/:annee",
+        // path: "/dashboard/:annee",
+        path: "/dashboard/filiere/:filiere/annee/:annee",
         element: <Dashboard />,
       },
       

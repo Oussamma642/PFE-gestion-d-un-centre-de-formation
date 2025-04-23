@@ -17,6 +17,7 @@ return new class extends Migration
             // On utilise directement les clés étrangères sans auto-increment d'un id
             $table->foreignId('examen_id')->constrained('examens')->onDelete('cascade');
             $table->foreignId('etudiant_id')->constrained('etudiants')->onDelete('cascade');
+            // moyenne les controles
             $table->decimal('note', 4, 2);
             $table->timestamps();
 

@@ -43,12 +43,12 @@ class ModuleController extends Controller
         //
     }
 
-    public function showByAnnee($annee)
+    public function showByAnneeFiliere($annee,$filiere)
     {
-        $modules = Module::where('annee', $annee)->get();
+        $modules = Module::where('annee', $annee)->where('filiere_id', $filiere)->get();
 
         if ($modules->isEmpty()) {
-            return response()->json(['message' => 'Aucun module trouvé pour cette année.'], 404);
+            return response()->json(['message' => 'Aucun module trouvé pour cette année et cette filière.'], 404);
         }
 
         return response()->json($modules);

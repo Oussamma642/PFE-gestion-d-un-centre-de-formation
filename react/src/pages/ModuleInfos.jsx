@@ -30,10 +30,7 @@ export default function ModuleInfos({libelle, semestre,coefficient, masse_horair
                             </p>
                         </div>
                     </div>
-                    <button className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg flex items-center transition-colors">
-                        <Download size={16} className="mr-2" />
-                        Exporter
-                    </button>
+                 
                 </div>
 
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-4">

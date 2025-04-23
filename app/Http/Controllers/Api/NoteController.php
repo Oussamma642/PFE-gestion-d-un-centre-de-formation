@@ -2,8 +2,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Note;
 use App\Models\Controle;
+use App\Models\Note;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -77,4 +77,10 @@ class NoteController extends Controller
     {
         //
     }
+
+    public function exportNotes($moduleId)
+    {
+        return Excel::download(new NotesExport($moduleId), 'notes_module_' . $moduleId . '.xlsx');
+    }
+
 }
