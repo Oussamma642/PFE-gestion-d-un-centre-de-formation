@@ -169,13 +169,19 @@ const WorkingDirectory = () => {
                             <motion.button
                                 whileHover={{ scale: 1.01 }}
                                 whileTap={{ scale: 0.99 }}
-                                onClick={() =>
-                                    setSelectedOption(
-                                        selectedOption === option.id
-                                            ? null
-                                            : option.id
-                                    )
-                                }
+                                onClick={() => {
+                                    if (option.id === 3) {
+                                        // Navigate to /dashboard/resources for "Gestion des ressources"
+                                        navigate("/dashboard/resources");
+                                    } else {
+                                        // Toggle the selected option for other options
+                                        setSelectedOption(
+                                            selectedOption === option.id
+                                                ? null
+                                                : option.id
+                                        );
+                                    }
+                                }}
                                 className={`w-full p-6 text-left focus:outline-none rounded-xl ${option.hoverColor}`}
                             >
                                 <div className="flex items-center justify-between">
