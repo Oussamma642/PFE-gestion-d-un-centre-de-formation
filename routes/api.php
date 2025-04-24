@@ -35,25 +35,22 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // ------ Etudiants
     Route::apiResource('/etudiants', EtudiantController::class);
-    // Route::get('/etudiants/annee/{annee}', [EtudiantController::class, 'showByAnnee']);
     Route::get('/etudiants/annee/{annee}/filiere/{filiere}', [EtudiantController::class, 'showByAnneeFiliere']);
 
     // ------ Modules
-    // 
-    // Route::get('/modules/annee/{annee}', [ModuleController::class, 'showByAnnee']);
     Route::get('/modules/annee/{annee}/filiere/{filiere}', [ModuleController::class, 'showByAnneeFiliere']);
     Route::apiResource('/modules', ModuleController::class);
 
     // ------ Controles
     Route::get('controles/module/{id}', [ControleController::class, "getControlesByModuleId"]);
 
-    // ------ Notes
+    // ------ Notes Controles
     // Route::get('/notes', [NoteController::class, 'index']);
     Route::get('/notes/module/{moduleId}', [NoteController::class, 'getNotesByModuleId']);
-
     Route::post('/notes', [NoteController::class, 'store']);
-
     Route::get('/notes/export/{moduleId}', [NoteController::class, 'exportNotes']);
+
+    // ------ Examens
 
 });
 
