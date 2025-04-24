@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ControleController;
+use App\Http\Controllers\Api\ExamenController;
 use App\Http\Controllers\Api\EtudiantController;
 use App\Http\Controllers\Api\ModuleController;
 use App\Http\Controllers\Api\UserController;
@@ -51,6 +52,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/notes/export/{moduleId}', [NoteController::class, 'exportNotes']);
 
     // ------ Examens
+    Route::get('examens/module/{id}', [ExamenController::class, "getExamensByModuleId"]);
 
 });
 
