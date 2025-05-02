@@ -12,9 +12,16 @@ function Dashboard() {
     const [marsSemesterModules, setMarsSemesterModules] = useState([]);
     const [juilletSemesterModules, setJuilletSemesterModules] = useState([]);
     const [controles, setControles] = useState([]);
+    const [examens, setExamens] = useState([]);
     const [etudiants, setEtudiants] = useState([]);
     const [notes, setNotes] = useState({});
+    const [notesExamens, setNotesExamens] = useState({});
+
     const [loading, setLoading] = useState(true);
+    // State to distinct beween controles and examens
+    const [typeExamen, setTypeExamen] = useState(
+        localStorage.getItem("EXAMEN_TYPE") || "controles"
+    );
 
     // Fetch modules based on the year (annee) and the filiere
     useEffect(() => {
@@ -28,7 +35,7 @@ function Dashboard() {
                     ? response.data
                     : [];
 
-                    console.log(modulesData);
+                // console.log(modulesData);
 
                 setMarsSemesterModules(
                     modulesData.filter((module) => module.semestre === "Mars")
@@ -51,8 +58,28 @@ function Dashboard() {
         fetchModules();
     }, [annee]);
 
-    // Fetch controles when a module is selected
+    // Fetch controles/examens when a module is selected
     useEffect(() => {
+        // Fetch Examens
+
+        const fetchExamens = async () => {
+            if (selectedModule) {
+                setLoading(true);
+                try {
+                    const response = await axiosClient.get(
+                        `examens/module/${selectedModule.id}`
+                    );
+                    console.log(response.data);
+                    setExamens(response.data);
+                } catch (error) {
+                    console.error("Error fetching controles:", error);
+                    setControles([]);
+                } finally {
+                    setLoading(false);
+                }
+            }
+        };
+
         const fetchControles = async () => {
             if (selectedModule) {
                 setLoading(true);
@@ -69,8 +96,8 @@ function Dashboard() {
                 }
             }
         };
-
-        fetchControles();
+        fetchExamens();
+        // fetchControles();
     }, [selectedModule]);
 
     // Fetch students for the selected year and filiere
@@ -93,8 +120,32 @@ function Dashboard() {
         fetchEtudiants();
     }, [annee]);
 
-    // Fetch existing notes for the selected module
+    // Fetch existing notes of controles or examens for the selected module
     useEffect(() => {
+        // Fetch notes for examens
+        const fetchNotesExamens = async () => {
+            if (selectedModule) {
+                try {
+                    const response = await axiosClient.get(
+                        `/notesexamens/module/${selectedModule.id}`
+                    );
+                    const fetchedNotes = response.data;
+                    // console.log(fetchedNotes);
+
+                    // Map notes to the state format
+                    const notesMap = {};
+                    fetchedNotes.forEach((note) => {
+                        notesMap[`${note.etudiant_id}-${note.examen_id}`] =
+                            note.note;
+                    });
+                    setNotesExamens(notesMap);
+                } catch (error) {
+                    console.error("Error fetching notes:", error);
+                }
+            }
+        };
+
+        // Fetch notes for controles
         const fetchNotes = async () => {
             if (selectedModule) {
                 try {
@@ -102,7 +153,7 @@ function Dashboard() {
                         `/notes/module/${selectedModule.id}`
                     );
                     const fetchedNotes = response.data;
-                    console.log(fetchedNotes);
+                    // console.log(fetchedNotes);
 
                     // Map notes to the state format
                     const notesMap = {};
@@ -117,10 +168,11 @@ function Dashboard() {
             }
         };
 
-        fetchNotes();
+        fetchNotesExamens();
+        // fetchNotes();
     }, [selectedModule]);
 
-    // Handle note change
+    // Handle note change for controles
     const handleNoteChange = (etudiantId, controleId, value) => {
         setNotes((prevNotes) => ({
             ...prevNotes,
@@ -128,30 +180,45 @@ function Dashboard() {
         }));
     };
 
-    // Submit notes
-    const submitNotes = async () => {
+    // Handle note change for examens
+    const handleNoteExamensChange = (etudiantId, examenId, value) => {
+        console.log("Examens", etudiantId, examenId, value);
+        setNotesExamens((prevNotes) => ({
+            ...prevNotes,
+            [`${etudiantId}-${examenId}`]: value,
+        }));
+    };
+
+
+    async function validateNotes(notes, endpoint, idKey) {
         try {
             const payload = Object.entries(notes).map(([key, note]) => {
-                const [etudiantId, controleId] = key.split("-");
+                const [etudiantId, itemId] = key.split("-");
                 return {
+
                     etudiant_id: etudiantId,
-                    controle_id: controleId,
+                    [idKey]: itemId,
                     note,
                 };
             });
-
-            await axiosClient.post("/notes", payload);
+    
+            console.log("Payload being sent:", payload);
+            await axiosClient.post(endpoint, payload);
             alert("Notes saved successfully!");
         } catch (error) {
-            console.error("Error saving notes:", error);
+            console.error(`Error saving notes to ${endpoint}:`, error);
             alert("Failed to save notes.");
         }
-    };
+    }
+    
+    // Submit notes
+   const submitNotes = async () => {
+    await validateNotes(notesExamens, "/notes/examens", "examen_id");
+};
+
 
     // Handle export
     const handleExport = async () => {
-
-
         try {
             const response = await axiosClient.get(
                 `/notes/export/${selectedModule.id}`,
@@ -236,7 +303,15 @@ function Dashboard() {
                                                     <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200 sticky left-0 bg-gray-50">
                                                         Étudiant
                                                     </th>
-                                                    {controles.map(
+
+                                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200 sticky left-0 bg-gray-50">
+                                                        Examen Pratique
+                                                    </th>
+                                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200 sticky left-0 bg-gray-50">
+                                                        Examen Théorique
+                                                    </th>
+                                                    {/* {
+                                                    controles.map(
                                                         (controle) => (
                                                             <th
                                                                 key={
@@ -250,10 +325,75 @@ function Dashboard() {
                                                                 }
                                                             </th>
                                                         )
-                                                    )}
+                                                    )} */}
                                                 </tr>
                                             </thead>
+
                                             <tbody className="divide-y divide-gray-200">
+                                                {etudiants.map(
+                                                    (etudiant, index) => (
+                                                        <tr
+                                                            key={etudiant.id}
+                                                            className={
+                                                                index % 2 === 0
+                                                                    ? "bg-white"
+                                                                    : "bg-gray-50"
+                                                            }
+                                                        >
+                                                            <td className="px-4 py-3 text-sm text-gray-800 font-medium sticky left-0 bg-inherit">
+                                                                {etudiant.nom}{" "}
+                                                                {
+                                                                    etudiant.prenom
+                                                                }
+                                                            </td>
+                                                            {examens.map(
+                                                                (examen) => (
+                                                                    <td
+                                                                        key={
+                                                                            examen.id
+                                                                        }
+                                                                        className="px-4 py-3"
+                                                                    >
+                                                                        <input
+                                                                            type="number"
+                                                                            className={`w-full border rounded-md px-3 py-2 text-center ${
+                                                                                notesExamens[
+                                                                                    `${etudiant.id}-${examen.id}`
+                                                                                ]
+                                                                                    ? "bg-green-100"
+                                                                                    : ""
+                                                                            }`}
+                                                                            value={
+                                                                                notesExamens[
+                                                                                    `${etudiant.id}-${examen.id}`
+                                                                                ] ||
+                                                                                ""
+                                                                            }
+                                                                            onChange={(
+                                                                                e
+                                                                            ) =>
+                                                                                handleNoteExamensChange(
+                                                                                    etudiant.id,
+                                                                                    examen.id,
+                                                                                    e
+                                                                                        .target
+                                                                                        .value
+                                                                                )
+                                                                            }
+                                                                            min="0"
+                                                                            max="20"
+                                                                            step="0.5"
+                                                                            placeholder="0-20"
+                                                                        />
+                                                                    </td>
+                                                                )
+                                                            )}
+                                                        </tr>
+                                                    )
+                                                )}
+                                            </tbody>
+
+                                            {/* <tbody className="divide-y divide-gray-200">
                                                 {etudiants.map(
                                                     (etudiant, index) => (
                                                         <tr
@@ -315,13 +455,13 @@ function Dashboard() {
                                                         </tr>
                                                     )
                                                 )}
-                                            </tbody>
+                                            </tbody> */}
                                         </table>
                                     </div>
 
                                     <div className="mt-4 text-right text-sm text-gray-500">
-                                        {etudiants.length} étudiants ·{" "}
-                                        {controles.length} contrôles
+                                        {etudiants.length} étudiant(s) ·{" "}
+                                        {examens.length} examens
                                     </div>
                                 </div>
                             </>

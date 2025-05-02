@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\ModuleController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\NoteController;
 use App\Http\Controllers\Api\FiliereController;
+use App\Http\Controllers\Api\ResultatExamenController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -46,14 +47,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('controles/module/{id}', [ControleController::class, "getControlesByModuleId"]);
 
     // ------ Notes Controles
-    // Route::get('/notes', [NoteController::class, 'index']);
     Route::get('/notes/module/{moduleId}', [NoteController::class, 'getNotesByModuleId']);
-    Route::post('/notes', [NoteController::class, 'store']);
+    Route::post('/notes/controles', [NoteController::class, 'store']);
     Route::get('/notes/export/{moduleId}', [NoteController::class, 'exportNotes']);
 
-    // ------ Examens
+    // ------ Examens To fetch examens infos by ID
     Route::get('examens/module/{id}', [ExamenController::class, "getExamensByModuleId"]);
-
+    
+    // ------ Notes Examens
+    Route::get('/notesexamens/module/{moduleId}', [ResultatExamenController::class, 'getNotesByModuleId']); // to fetch existing exmanes notes by module ID
+    Route::post('/notes/examens', [ResultatExamenController::class, 'store']);
 });
 
 Route::post('/signup', [AuthController::class, 'signup']);
