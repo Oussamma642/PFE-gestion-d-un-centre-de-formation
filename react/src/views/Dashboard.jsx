@@ -514,7 +514,9 @@ function Dashboard() {
 
                                     <div className="mt-4 text-right text-sm text-gray-500">
                                         {etudiants.length} étudiant(s) ·{" "}
-                                        {examens.length} examens
+                                        {typeExamen === "controles"
+                                            ? controles.length
+                                            : examens.length} {"controle(s)"}
                                     </div>
                                 </div>
                             </>
