@@ -23,6 +23,14 @@ function Dashboard() {
         localStorage.getItem("EXAMEN_TYPE") || "controles"
     );
 
+    // Load saved selection from localStorage on component mount
+    useEffect(() => {
+        const savedType = localStorage.getItem("EXAMEN_TYPE");
+        if (savedType) {
+          setTypeExamen(savedType);
+        }
+      }, []);
+
     // Fetch modules based on the year (annee) and the filiere
     useEffect(() => {
         const fetchModules = async () => {
@@ -96,9 +104,9 @@ function Dashboard() {
                 }
             }
         };
-        fetchExamens();
-        // fetchControles();
-    }, [selectedModule]);
+
+        typeExamen === "controles" ? fetchControles() : fetchExamens();
+    }, [selectedModule, typeExamen]);
 
     // Fetch students for the selected year and filiere
     useEffect(() => {
@@ -168,9 +176,9 @@ function Dashboard() {
             }
         };
 
-        fetchNotesExamens();
+        typeExamen === "controles" ? fetchNotes() : fetchNotesExamens();
         // fetchNotes();
-    }, [selectedModule]);
+    }, [selectedModule, typeExamen]);
 
     // Handle note change for controles
     const handleNoteChange = (etudiantId, controleId, value) => {
@@ -189,19 +197,18 @@ function Dashboard() {
         }));
     };
 
-
+    // Handle note validation for controles and examens
     async function validateNotes(notes, endpoint, idKey) {
         try {
             const payload = Object.entries(notes).map(([key, note]) => {
                 const [etudiantId, itemId] = key.split("-");
                 return {
-
                     etudiant_id: etudiantId,
                     [idKey]: itemId,
                     note,
                 };
             });
-    
+
             console.log("Payload being sent:", payload);
             await axiosClient.post(endpoint, payload);
             alert("Notes saved successfully!");
@@ -210,12 +217,15 @@ function Dashboard() {
             alert("Failed to save notes.");
         }
     }
-    
-    // Submit notes
-   const submitNotes = async () => {
-    await validateNotes(notesExamens, "/notes/examens", "examen_id");
-};
 
+    // Submit notes
+    const submitNotes = async () => {
+        if (typeExamen === "controles") {
+            await validateNotes(notes, "/notes/controles", "controle_id");
+        } else {    
+            await validateNotes(notesExamens, "/notes/examens", "examen_id");
+        }
+    };
 
     // Handle export
     const handleExport = async () => {
@@ -288,6 +298,27 @@ function Dashboard() {
                                             />
                                             Exporter
                                         </button>
+
+                                        {/* Select Button */}
+                                        <select
+                                            value={typeExamen}
+                                            onChange={(e) => {
+                                                setTypeExamen(e.target.value);
+                                                localStorage.setItem(
+                                                    "EXAMEN_TYPE",
+                                                    e.target.value
+                                                ); // Persist selection
+                                            }}
+                                            className="border rounded-md px-3 py-2 text-gray-700"
+                                        >
+                                            <option value="controles">
+                                                Controles
+                                            </option>
+                                            <option value="examens">
+                                                Examens
+                                            </option>
+                                        </select>
+
                                         <button
                                             onClick={submitNotes}
                                             className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors duration-200 flex items-center"
@@ -297,21 +328,18 @@ function Dashboard() {
                                     </div>
 
                                     <div className="overflow-x-auto">
-                                        <table className="min-w-full border-collapse">
-                                            <thead>
-                                                <tr className="bg-gray-50">
-                                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200 sticky left-0 bg-gray-50">
-                                                        Étudiant
-                                                    </th>
 
-                                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200 sticky left-0 bg-gray-50">
-                                                        Examen Pratique
-                                                    </th>
-                                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200 sticky left-0 bg-gray-50">
-                                                        Examen Théorique
-                                                    </th>
-                                                    {/* {
-                                                    controles.map(
+                                        <table className="min-w-full border-collapse">
+                                            
+                                            {/* Handle thead */}
+                                            {typeExamen === "controles" ? (
+                                                <thead>
+                                                    <tr className="bg-gray-50">
+                                                        <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200 sticky left-0 bg-gray-50">
+                                                            Étudiant
+                                                        </th>
+
+                                                        {controles.map(
                                                         (controle) => (
                                                             <th
                                                                 key={
@@ -325,75 +353,32 @@ function Dashboard() {
                                                                 }
                                                             </th>
                                                         )
-                                                    )} */}
+                                                    )}
+                                                    </tr>
+                                                </thead>
+                                            ) : (
+                                                <thead>
+                                                <tr className="bg-gray-50">
+                                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200 sticky left-0 bg-gray-50">
+                                                        Étudiant
+                                                    </th>
+
+                                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200 sticky left-0 bg-gray-50">
+                                                        Examen Pratique
+                                                    </th>
+                                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200 sticky left-0 bg-gray-50">
+                                                        Examen Théorique
+                                                    </th>
+                                                   
                                                 </tr>
                                             </thead>
+                                            )}
 
-                                            <tbody className="divide-y divide-gray-200">
-                                                {etudiants.map(
-                                                    (etudiant, index) => (
-                                                        <tr
-                                                            key={etudiant.id}
-                                                            className={
-                                                                index % 2 === 0
-                                                                    ? "bg-white"
-                                                                    : "bg-gray-50"
-                                                            }
-                                                        >
-                                                            <td className="px-4 py-3 text-sm text-gray-800 font-medium sticky left-0 bg-inherit">
-                                                                {etudiant.nom}{" "}
-                                                                {
-                                                                    etudiant.prenom
-                                                                }
-                                                            </td>
-                                                            {examens.map(
-                                                                (examen) => (
-                                                                    <td
-                                                                        key={
-                                                                            examen.id
-                                                                        }
-                                                                        className="px-4 py-3"
-                                                                    >
-                                                                        <input
-                                                                            type="number"
-                                                                            className={`w-full border rounded-md px-3 py-2 text-center ${
-                                                                                notesExamens[
-                                                                                    `${etudiant.id}-${examen.id}`
-                                                                                ]
-                                                                                    ? "bg-green-100"
-                                                                                    : ""
-                                                                            }`}
-                                                                            value={
-                                                                                notesExamens[
-                                                                                    `${etudiant.id}-${examen.id}`
-                                                                                ] ||
-                                                                                ""
-                                                                            }
-                                                                            onChange={(
-                                                                                e
-                                                                            ) =>
-                                                                                handleNoteExamensChange(
-                                                                                    etudiant.id,
-                                                                                    examen.id,
-                                                                                    e
-                                                                                        .target
-                                                                                        .value
-                                                                                )
-                                                                            }
-                                                                            min="0"
-                                                                            max="20"
-                                                                            step="0.5"
-                                                                            placeholder="0-20"
-                                                                        />
-                                                                    </td>
-                                                                )
-                                                            )}
-                                                        </tr>
-                                                    )
-                                                )}
-                                            </tbody>
 
-                                            {/* <tbody className="divide-y divide-gray-200">
+                                            {/* Handle tbody */}
+
+                                            {typeExamen === "controles" ? (
+                                                <tbody className="divide-y divide-gray-200">
                                                 {etudiants.map(
                                                     (etudiant, index) => (
                                                         <tr
@@ -455,7 +440,75 @@ function Dashboard() {
                                                         </tr>
                                                     )
                                                 )}
-                                            </tbody> */}
+                                            </tbody>
+                                            )
+                                            :
+                                            <tbody className="divide-y divide-gray-200">
+                                            {etudiants.map(
+                                                (etudiant, index) => (
+                                                    <tr
+                                                        key={etudiant.id}
+                                                        className={
+                                                            index % 2 === 0
+                                                                ? "bg-white"
+                                                                : "bg-gray-50"
+                                                        }
+                                                    >
+                                                        <td className="px-4 py-3 text-sm text-gray-800 font-medium sticky left-0 bg-inherit">
+                                                            {etudiant.nom}{" "}
+                                                            {
+                                                                etudiant.prenom
+                                                            }
+                                                        </td>
+                                                        {examens.map(
+                                                            (examen) => (
+                                                                <td
+                                                                    key={
+                                                                        examen.id
+                                                                    }
+                                                                    className="px-4 py-3"
+                                                                >
+                                                                    <input
+                                                                        type="number"
+                                                                        className={`w-full border rounded-md px-3 py-2 text-center ${
+                                                                            notesExamens[
+                                                                                `${etudiant.id}-${examen.id}`
+                                                                            ]
+                                                                                ? "bg-green-100"
+                                                                                : ""
+                                                                        }`}
+                                                                        value={
+                                                                            notesExamens[
+                                                                                `${etudiant.id}-${examen.id}`
+                                                                            ] ||
+                                                                            ""
+                                                                        }
+                                                                        onChange={(
+                                                                            e
+                                                                        ) =>
+                                                                            handleNoteExamensChange(
+                                                                                etudiant.id,
+                                                                                examen.id,
+                                                                                e
+                                                                                    .target
+                                                                                    .value
+                                                                            )
+                                                                        }
+                                                                        min="0"
+                                                                        max="20"
+                                                                        step="0.5"
+                                                                        placeholder="0-20"
+                                                                    />
+                                                                </td>
+                                                            )
+                                                        )}
+                                                    </tr>
+                                                )
+                                            )}
+                                        </tbody>
+
+                                        }
+
                                         </table>
                                     </div>
 
