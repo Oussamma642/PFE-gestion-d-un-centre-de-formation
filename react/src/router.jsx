@@ -7,6 +7,7 @@ import GuestLayout from "./components/GuestLayout";
 import Dashboard from "./views/Dashboard";
 import WorkingDirectory from "./views/WorkingDirectory";
 import GestionResources from "./views/GestionResources";
+import Passage1Vers2 from "./views/Passage1Vers2";
 
 const router = createBrowserRouter([
   // DefaultLayout
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
       {
         path:"/dashboard/resources",
         element:<GestionResources/>
+      },
+      {
+        path:"/dashboard/filieres/:filiereId/passage-vers-deuxieme-annee",
+        element:<Passage1Vers2/>
       }
 
     ],
