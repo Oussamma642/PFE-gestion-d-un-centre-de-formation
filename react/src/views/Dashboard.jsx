@@ -260,13 +260,11 @@ function Dashboard() {
         let count = 0;
 
         // Determine which notes object to use based on the selected type
-        const notesObject = typeExamen === "controles" ? notes : notesExamens;
-        const currentControles =
-            typeExamen === "controles" ? controles : examens;
+        const notesObject = notes;
 
         // Loop through all controls/exams for this student
-        currentControles.forEach((item) => {
-            const key = `${studentId}-${item.id}`;
+        controles.forEach((controle) => {
+            const key = `${studentId}-${controle.id}`;
             const grade = notesObject[key];
 
             // Only count grades that exist and are valid numbers
