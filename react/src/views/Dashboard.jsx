@@ -27,9 +27,9 @@ function Dashboard() {
     useEffect(() => {
         const savedType = localStorage.getItem("EXAMEN_TYPE");
         if (savedType) {
-          setTypeExamen(savedType);
+            setTypeExamen(savedType);
         }
-      }, []);
+    }, []);
 
     // Fetch modules based on the year (annee) and the filiere
     useEffect(() => {
@@ -222,7 +222,7 @@ function Dashboard() {
     const submitNotes = async () => {
         if (typeExamen === "controles") {
             await validateNotes(notes, "/notes/controles", "controle_id");
-        } else {    
+        } else {
             await validateNotes(notesExamens, "/notes/examens", "examen_id");
         }
     };
@@ -252,6 +252,32 @@ function Dashboard() {
             console.error("Error exporting notes:", error);
             alert("Failed to export notes.");
         }
+    };
+
+    // 1. First, let's add a function to calculate the average grade for a student
+    const calculateAverageForStudent = (studentId) => {
+        let total = 0;
+        let count = 0;
+
+        // Determine which notes object to use based on the selected type
+        const notesObject = typeExamen === "controles" ? notes : notesExamens;
+        const currentControles =
+            typeExamen === "controles" ? controles : examens;
+
+        // Loop through all controls/exams for this student
+        currentControles.forEach((item) => {
+            const key = `${studentId}-${item.id}`;
+            const grade = notesObject[key];
+
+            // Only count grades that exist and are valid numbers
+            if (grade && !isNaN(parseFloat(grade))) {
+                total += parseFloat(grade);
+                count++;
+            }
+        });
+
+        // Return the average or a dash if no grades exist
+        return count > 0 ? (total / count).toFixed(2) : "-";
     };
 
     return (
@@ -328,9 +354,7 @@ function Dashboard() {
                                     </div>
 
                                     <div className="overflow-x-auto">
-
                                         <table className="min-w-full border-collapse">
-                                            
                                             {/* Handle thead */}
                                             {typeExamen === "controles" ? (
                                                 <thead>
@@ -340,175 +364,194 @@ function Dashboard() {
                                                         </th>
 
                                                         {controles.map(
-                                                        (controle) => (
-                                                            <th
-                                                                key={
-                                                                    controle.id
-                                                                }
-                                                                className="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b border-gray-200"
-                                                            >
-                                                                Contrôle{" "}
-                                                                {
-                                                                    controle.numero_controle
-                                                                }
-                                                            </th>
-                                                        )
-                                                    )}
+                                                            (controle) => (
+                                                                <th
+                                                                    key={
+                                                                        controle.id
+                                                                    }
+                                                                    className="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b border-gray-200"
+                                                                >
+                                                                    Contrôle{" "}
+                                                                    {
+                                                                        controle.numero_controle
+                                                                    }
+                                                                </th>
+                                                            )
+                                                        )}
+                                                        <th className="px-4 py-3 text-center font-medium text-sm uppercase tracking-wider bg-blue-50">
+                                                            Moyenne
+                                                        </th>
                                                     </tr>
                                                 </thead>
                                             ) : (
                                                 <thead>
-                                                <tr className="bg-gray-50">
-                                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200 sticky left-0 bg-gray-50">
-                                                        Étudiant
-                                                    </th>
+                                                    <tr className="bg-gray-50">
+                                                        <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200 sticky left-0 bg-gray-50">
+                                                            Étudiant
+                                                        </th>
 
-                                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200 sticky left-0 bg-gray-50">
-                                                        Examen Pratique
-                                                    </th>
-                                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200 sticky left-0 bg-gray-50">
-                                                        Examen Théorique
-                                                    </th>
-                                                   
-                                                </tr>
-                                            </thead>
+                                                        <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200 sticky left-0 bg-gray-50">
+                                                            Examen Pratique
+                                                        </th>
+                                                        <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200 sticky left-0 bg-gray-50">
+                                                            Examen Théorique
+                                                        </th>
+                                                    </tr>
+                                                </thead>
                                             )}
-
 
                                             {/* Handle tbody */}
 
                                             {typeExamen === "controles" ? (
                                                 <tbody className="divide-y divide-gray-200">
-                                                {etudiants.map(
-                                                    (etudiant, index) => (
-                                                        <tr
-                                                            key={etudiant.id}
-                                                            className={
-                                                                index % 2 === 0
-                                                                    ? "bg-white"
-                                                                    : "bg-gray-50"
-                                                            }
-                                                        >
-                                                            <td className="px-4 py-3 text-sm text-gray-800 font-medium sticky left-0 bg-inherit">
-                                                                {etudiant.nom}{" "}
-                                                                {
-                                                                    etudiant.prenom
+                                                    {etudiants.map(
+                                                        (etudiant, index) => (
+                                                            <tr
+                                                                key={
+                                                                    etudiant.id
                                                                 }
-                                                            </td>
-                                                            {controles.map(
-                                                                (controle) => (
-                                                                    <td
-                                                                        key={
-                                                                            controle.id
-                                                                        }
-                                                                        className="px-4 py-3"
-                                                                    >
-                                                                        <input
-                                                                            type="number"
-                                                                            className={`w-full border rounded-md px-3 py-2 text-center ${
-                                                                                notes[
-                                                                                    `${etudiant.id}-${controle.id}`
-                                                                                ]
-                                                                                    ? "bg-green-100"
-                                                                                    : ""
-                                                                            }`}
-                                                                            value={
-                                                                                notes[
-                                                                                    `${etudiant.id}-${controle.id}`
-                                                                                ] ||
-                                                                                ""
-                                                                            }
-                                                                            onChange={(
-                                                                                e
-                                                                            ) =>
-                                                                                handleNoteChange(
-                                                                                    etudiant.id,
-                                                                                    controle.id,
-                                                                                    e
-                                                                                        .target
-                                                                                        .value
-                                                                                )
-                                                                            }
-                                                                            min="0"
-                                                                            max="20"
-                                                                            step="0.5"
-                                                                            placeholder="0-20"
-                                                                        />
-                                                                    </td>
-                                                                )
-                                                            )}
-                                                        </tr>
-                                                    )
-                                                )}
-                                            </tbody>
-                                            )
-                                            :
-                                            <tbody className="divide-y divide-gray-200">
-                                            {etudiants.map(
-                                                (etudiant, index) => (
-                                                    <tr
-                                                        key={etudiant.id}
-                                                        className={
-                                                            index % 2 === 0
-                                                                ? "bg-white"
-                                                                : "bg-gray-50"
-                                                        }
-                                                    >
-                                                        <td className="px-4 py-3 text-sm text-gray-800 font-medium sticky left-0 bg-inherit">
-                                                            {etudiant.nom}{" "}
-                                                            {
-                                                                etudiant.prenom
-                                                            }
-                                                        </td>
-                                                        {examens.map(
-                                                            (examen) => (
-                                                                <td
-                                                                    key={
-                                                                        examen.id
+                                                                className={
+                                                                    index %
+                                                                        2 ===
+                                                                    0
+                                                                        ? "bg-white"
+                                                                        : "bg-gray-50"
+                                                                }
+                                                            >
+                                                                <td className="px-4 py-3 text-sm text-gray-800 font-medium sticky left-0 bg-inherit">
+                                                                    {
+                                                                        etudiant.nom
+                                                                    }{" "}
+                                                                    {
+                                                                        etudiant.prenom
                                                                     }
-                                                                    className="px-4 py-3"
-                                                                >
-                                                                    <input
-                                                                        type="number"
-                                                                        className={`w-full border rounded-md px-3 py-2 text-center ${
-                                                                            notesExamens[
-                                                                                `${etudiant.id}-${examen.id}`
-                                                                            ]
-                                                                                ? "bg-green-100"
-                                                                                : ""
-                                                                        }`}
-                                                                        value={
-                                                                            notesExamens[
-                                                                                `${etudiant.id}-${examen.id}`
-                                                                            ] ||
-                                                                            ""
-                                                                        }
-                                                                        onChange={(
-                                                                            e
-                                                                        ) =>
-                                                                            handleNoteExamensChange(
-                                                                                etudiant.id,
-                                                                                examen.id,
-                                                                                e
-                                                                                    .target
-                                                                                    .value
-                                                                            )
-                                                                        }
-                                                                        min="0"
-                                                                        max="20"
-                                                                        step="0.5"
-                                                                        placeholder="0-20"
-                                                                    />
                                                                 </td>
-                                                            )
-                                                        )}
-                                                    </tr>
-                                                )
+                                                                {controles.map(
+                                                                    (
+                                                                        controle
+                                                                    ) => (
+                                                                        <td
+                                                                            key={
+                                                                                controle.id
+                                                                            }
+                                                                            className="px-4 py-3"
+                                                                        >
+                                                                            <input
+                                                                                type="number"
+                                                                                className={`w-full border rounded-md px-3 py-2 text-center ${
+                                                                                    notes[
+                                                                                        `${etudiant.id}-${controle.id}`
+                                                                                    ]
+                                                                                        ? "bg-green-100"
+                                                                                        : ""
+                                                                                }`}
+                                                                                value={
+                                                                                    notes[
+                                                                                        `${etudiant.id}-${controle.id}`
+                                                                                    ] ||
+                                                                                    ""
+                                                                                }
+                                                                                onChange={(
+                                                                                    e
+                                                                                ) =>
+                                                                                    handleNoteChange(
+                                                                                        etudiant.id,
+                                                                                        controle.id,
+                                                                                        e
+                                                                                            .target
+                                                                                            .value
+                                                                                    )
+                                                                                }
+                                                                                min="0"
+                                                                                max="20"
+                                                                                step="0.5"
+                                                                                placeholder="0-20"
+                                                                            />
+                                                                        </td>
+                                                                    )
+                                                                )}
+                                                                <td className="px-4 py-3 font-medium text-center bg-blue-50">
+                                                                    {calculateAverageForStudent(
+                                                                        etudiant.id
+                                                                    )}
+                                                                </td>
+                                                            </tr>
+                                                        )
+                                                    )}
+                                                </tbody>
+                                            ) : (
+                                                <tbody className="divide-y divide-gray-200">
+                                                    {etudiants.map(
+                                                        (etudiant, index) => (
+                                                            <tr
+                                                                key={
+                                                                    etudiant.id
+                                                                }
+                                                                className={
+                                                                    index %
+                                                                        2 ===
+                                                                    0
+                                                                        ? "bg-white"
+                                                                        : "bg-gray-50"
+                                                                }
+                                                            >
+                                                                <td className="px-4 py-3 text-sm text-gray-800 font-medium sticky left-0 bg-inherit">
+                                                                    {
+                                                                        etudiant.nom
+                                                                    }{" "}
+                                                                    {
+                                                                        etudiant.prenom
+                                                                    }
+                                                                </td>
+                                                                {examens.map(
+                                                                    (
+                                                                        examen
+                                                                    ) => (
+                                                                        <td
+                                                                            key={
+                                                                                examen.id
+                                                                            }
+                                                                            className="px-4 py-3"
+                                                                        >
+                                                                            <input
+                                                                                type="number"
+                                                                                className={`w-full border rounded-md px-3 py-2 text-center ${
+                                                                                    notesExamens[
+                                                                                        `${etudiant.id}-${examen.id}`
+                                                                                    ]
+                                                                                        ? "bg-green-100"
+                                                                                        : ""
+                                                                                }`}
+                                                                                value={
+                                                                                    notesExamens[
+                                                                                        `${etudiant.id}-${examen.id}`
+                                                                                    ] ||
+                                                                                    ""
+                                                                                }
+                                                                                onChange={(
+                                                                                    e
+                                                                                ) =>
+                                                                                    handleNoteExamensChange(
+                                                                                        etudiant.id,
+                                                                                        examen.id,
+                                                                                        e
+                                                                                            .target
+                                                                                            .value
+                                                                                    )
+                                                                                }
+                                                                                min="0"
+                                                                                max="20"
+                                                                                step="0.5"
+                                                                                placeholder="0-20"
+                                                                            />
+                                                                        </td>
+                                                                    )
+                                                                )}
+                                                            </tr>
+                                                        )
+                                                    )}
+                                                </tbody>
                                             )}
-                                        </tbody>
-
-                                        }
-
                                         </table>
                                     </div>
 
@@ -516,7 +559,8 @@ function Dashboard() {
                                         {etudiants.length} étudiant(s) ·{" "}
                                         {typeExamen === "controles"
                                             ? controles.length
-                                            : examens.length} {"controle(s)"}
+                                            : examens.length}{" "}
+                                        {"controle(s)"}
                                     </div>
                                 </div>
                             </>
