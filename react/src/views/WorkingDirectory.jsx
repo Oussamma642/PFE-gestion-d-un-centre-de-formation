@@ -113,7 +113,7 @@ const WorkingDirectory = () => {
   const handleFiliereSelect = (filiereId) => {
     setSelectedFiliere(filiereId);
     if (selectedOption === 4) {
-      navigate(`/dashboard/filieres/${filiereId}/passage-vers-deuxieme-annee`);
+      navigate(`/dashboard/filieres/${filiereId}/passage-deuxieme-annee`);
     }
   };
 

@@ -28,7 +28,7 @@ const router = createBrowserRouter([
         element:<GestionResources/>
       },
       {
-        path:"/dashboard/filieres/:filiereId/passage-vers-deuxieme-annee",
+        path:"/dashboard/filieres/:filiereId/passage-deuxieme-annee",
         element:<Passage1Vers2/>
       }
 
