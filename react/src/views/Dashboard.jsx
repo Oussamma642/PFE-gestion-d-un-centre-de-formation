@@ -254,7 +254,7 @@ function Dashboard() {
         }
     };
 
-    // 1. First, let's add a function to calculate the average grade for a student
+    //  Function to calculate the average controles for a student
     const calculateAverageForStudent = (studentId) => {
         let total = 0;
         let count = 0;

@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axiosClient from "../axios-client";
 import { useParams } from "react-router-dom";
+import { td, tr } from "framer-motion/client";
 
 function Passage1Vers2() {
+    const [filiereInfos, setFiliereInfos] = useState({});
+
+    const [controles, setControles] = useState([]);
     const [notes, setNotes] = useState([]);
     const [examens, setExamens] = useState([]);
     const [notesExamens, setNotesExamens] = useState({});
@@ -11,6 +15,25 @@ function Passage1Vers2() {
     const [etudiants, setEtudiants] = useState([]);
 
     const { filiere } = useParams();
+
+    // fetch the filiere detail
+    useEffect(() => {
+        const fetchFiliereDetails = async () => {
+            setLoading(true);
+            try {
+                const response = await axiosClient.get(`/filieres/${filiere}`);
+                console.log(response.data);
+                setFiliereInfos(response.data);
+            } catch (error) {
+                console.error("Error fetching students:", error);
+                setEtudiants([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchFiliereDetails();
+    }, [filiere]);
 
     // Fetch students for the selected year and filiere
     useEffect(() => {
@@ -32,13 +55,42 @@ function Passage1Vers2() {
         fetchEtudiants();
     }, [filiere]);
 
+    // Fetch controles of all the modules of premiere annee of a filiere
+    useEffect(() => {
+        const fetchControles = async () => {
+            setLoading(true);
+            try {
+                const response = await axiosClient.get(
+                    `controles/modules/premiere_annee/filiere/${filiere}`
+                );
+                console.log(response.data);
+                setControles(response.data);
+            } catch (error) {
+                console.error("Error fetching controles:", error);
+                setControles([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchControles();
+    }, [filiere]);
+
     // Fetch notes of controles of all the modules of premiere annee of a filiere
     useEffect(() => {
         const fetchNotes = async () => {
             const response = await axiosClient.get(
                 `/notes/premiere_annee/filiere/${filiere}`
             );
-            setNotes(response.data);
+            const fetchedNotes = response.data;
+
+            const notesMap = {};
+            fetchedNotes.forEach((note) => {
+                notesMap[`${note.etudiant_id}-${note.controle_id}`] = note.note;
+            });
+
+            setNotes(notesMap);
+            console.log(notesMap);
         };
         fetchNotes();
     }, [filiere]);
@@ -51,7 +103,6 @@ function Passage1Vers2() {
                 const response = await axiosClient.get(
                     `examens/modules/premiere_annee/filiere/${filiere}`
                 );
-                console.log("Examens:", response.data);
                 setExamens(response.data);
             } catch (error) {
                 console.error("Error fetching examens:", error);
@@ -72,7 +123,6 @@ function Passage1Vers2() {
             );
 
             const fetchedNotes = response.data;
-            console.log("Exam Notes:", fetchedNotes);
 
             const notesMap = {};
             fetchedNotes.forEach((note) => {
@@ -95,7 +145,6 @@ function Passage1Vers2() {
                     ? response.data
                     : [];
 
-                console.log("Modules:", modulesData);
                 setModules(modulesData);
             } catch (error) {
                 console.error("Error fetching modules:", error);
@@ -109,12 +158,41 @@ function Passage1Vers2() {
 
     // Group examens by module
     const getModuleExams = (moduleId) => {
-        return examens.filter(exam => exam.module_id === moduleId);
+        return examens.filter((exam) => exam.module_id === moduleId);
     };
 
     // Get specific exam by module and type
     const getExamByType = (moduleExams, type) => {
-        return moduleExams.find(exam => exam.type === type);
+        return moduleExams.find((exam) => exam.type === type);
+    };
+
+    //  Function to calculate the average controles for a student
+    const calculateAverageForStudent = (studentId, moduleControles) => {
+        let total = 0;
+        let count = 0;
+
+        // Determine which notes object to use based on the selected type
+        const notesObject = notes;
+
+        // Loop through all controls/exams for this student
+        moduleControles.forEach((controle) => {
+            const key = `${studentId}-${controle.id}`;
+            const grade = notesObject[key];
+
+            // Only count grades that exist and are valid numbers
+            if (grade && !isNaN(parseFloat(grade))) {
+                total += parseFloat(grade);
+                count++;
+            }
+        });
+
+        // Return the average or a dash if no grades exist
+        return count > 0 ? (total / count).toFixed(2) : "-";
+    };
+
+    // Group controles by module
+    const getModuleControles = (moduleId) => {
+        return controles.filter((controle) => controle.module_id === moduleId);
     };
 
     if (loading) {
@@ -122,52 +200,259 @@ function Passage1Vers2() {
     }
 
     return (
-        <div className="overflow-x-auto">
-            <table className="min-w-full border-collapse border border-gray-300">
-                <thead>
-                    <tr>
-                        <th className="border border-gray-300 px-4 py-2" rowSpan="2">Noms et Prénoms</th>
-                        {modules.map((mod) => (
-                            <th key={mod.id} className="border border-gray-300 px-4 py-2" colSpan="2">
-                                {mod.libelle}
+        <div className="p-6 space-y-8">
+            <div className="bg-white rounded-lg shadow-lg p-6">
+                <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                    {filiereInfos?.libelle || "Chargement..."}
+                </h1>
+                <p className="text-gray-600">
+                    Passage de la première année vers la deuxième année
+                </p>
+            </div>
+
+            <div className="overflow-x-auto bg-white rounded-lg shadow-lg">
+                <div className="p-4 border-b border-gray-200">
+                    <h1 className="text-2xl font-bold text-gray-800">
+                        Les notes des examens Théoriques et Pratiques
+                    </h1>
+                </div>
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            <th
+                                className="px-6 py-4 text-left text-sm font-semibold text-gray-900 border-r border-gray-200"
+                                rowSpan="2"
+                            >
+                                Noms et Prénoms
                             </th>
+                            {modules.map((mod) => (
+                                <th
+                                    key={mod.id}
+                                    className="px-6 py-4 text-center text-sm font-semibold text-gray-900 border-r border-gray-200"
+                                    colSpan="2"
+                                >
+                                    {mod.libelle}
+                                </th>
+                            ))}
+                        </tr>
+                        <tr>
+                            {modules.map((mod) => (
+                                <React.Fragment key={`header-${mod.id}`}>
+                                    <th className="px-6 py-3 text-center text-sm font-medium text-gray-500 border-r border-gray-200">
+                                        Examen Théorique
+                                    </th>
+                                    <th className="px-6 py-3 text-center text-sm font-medium text-gray-500 border-r border-gray-200">
+                                        Examen Pratique
+                                    </th>
+                                </React.Fragment>
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                        {etudiants.map((etudiant) => (
+                            <tr key={etudiant.id} className="hover:bg-gray-50">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 border-r border-gray-200">
+                                    {etudiant.nom} {etudiant.prenom}
+                                </td>
+                                {modules.map((module) => {
+                                    const moduleExams = getModuleExams(
+                                        module.id
+                                    );
+                                    const theoreticalExam = getExamByType(
+                                        moduleExams,
+                                        "theorique"
+                                    );
+                                    const practicalExam = getExamByType(
+                                        moduleExams,
+                                        "pratique"
+                                    );
+
+                                    return (
+                                        <React.Fragment
+                                            key={`student-${etudiant.id}-module-${module.id}`}
+                                        >
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-center border-r border-gray-200">
+                                                {theoreticalExam ? (
+                                                    <span
+                                                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                                            notesExamens[
+                                                                `${etudiant.id}-${theoreticalExam.id}`
+                                                            ] >= 10
+                                                                ? "bg-green-100 text-green-800"
+                                                                : "bg-red-100 text-red-800"
+                                                        }`}
+                                                    >
+                                                        {notesExamens[
+                                                            `${etudiant.id}-${theoreticalExam.id}`
+                                                        ] || "-"}
+                                                    </span>
+                                                ) : (
+                                                    "-"
+                                                )}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-center border-r border-gray-200">
+                                                {practicalExam ? (
+                                                    <span
+                                                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                                            notesExamens[
+                                                                `${etudiant.id}-${practicalExam.id}`
+                                                            ] >= 10
+                                                                ? "bg-green-100 text-green-800"
+                                                                : "bg-red-100 text-red-800"
+                                                        }`}
+                                                    >
+                                                        {notesExamens[
+                                                            `${etudiant.id}-${practicalExam.id}`
+                                                        ] || "-"}
+                                                    </span>
+                                                ) : (
+                                                    "-"
+                                                )}
+                                            </td>
+                                        </React.Fragment>
+                                    );
+                                })}
+                            </tr>
                         ))}
-                    </tr>
-                    <tr>
-                        {modules.map((mod) => (
-                            <React.Fragment key={`header-${mod.id}`}>
-                                <th className="border border-gray-300 px-4 py-2">Examen Théorique</th>
-                                <th className="border border-gray-300 px-4 py-2">Examen Pratique</th>
-                            </React.Fragment>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody>
-                    {etudiants.map((etudiant) => (
-                        <tr key={etudiant.id}>
-                            <td className="border border-gray-300 px-4 py-2">
-                                {etudiant.nom} {etudiant.prenom}
-                            </td>
-                            {modules.map((module) => {
-                                const moduleExams = getModuleExams(module.id);
-                                const theoreticalExam = getExamByType(moduleExams, 'theorique');
-                                const practicalExam = getExamByType(moduleExams, 'pratique');
-                                
+                    </tbody>
+                </table>
+            </div>
+
+            <div className="overflow-x-auto bg-white rounded-lg shadow-lg">
+                <div className="p-4 border-b border-gray-200">
+                    <h2 className="text-2xl font-bold text-gray-800">
+                        Les notes des contrôles continus
+                    </h2>
+                </div>
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            <th
+                                className="px-6 py-4 text-left text-sm font-semibold text-gray-900 border-r border-gray-200"
+                                rowSpan="2"
+                            >
+                                Noms et Prénoms
+                            </th>
+                            {modules.map((mod) => {
+                                const moduleControles = getModuleControles(
+                                    mod.id
+                                );
+                                const colspan = moduleControles.length + 1; // +1 for the average column
+
                                 return (
-                                    <React.Fragment key={`student-${etudiant.id}-module-${module.id}`}>
-                                        <td className="border border-gray-300 px-4 py-2">
-                                            {theoreticalExam ? notesExamens[`${etudiant.id}-${theoreticalExam.id}`] || '-' : '-'}
-                                        </td>
-                                        <td className="border border-gray-300 px-4 py-2">
-                                            {practicalExam ? notesExamens[`${etudiant.id}-${practicalExam.id}`] || '-' : '-'}
-                                        </td>
+                                    <th
+                                        key={mod.id}
+                                        className="px-6 py-4 text-center text-sm font-semibold text-gray-900 border-r border-gray-200"
+                                        colSpan={colspan}
+                                    >
+                                        {mod.libelle}
+                                    </th>
+                                );
+                            })}
+                        </tr>
+                        <tr>
+                            {modules.map((mod) => {
+                                const moduleControles = getModuleControles(
+                                    mod.id
+                                );
+
+                                if (moduleControles.length === 0) {
+                                    return (
+                                        <th
+                                            key={`header-empty-${mod.id}`}
+                                            className="px-6 py-3 text-center text-sm font-medium text-gray-500 border-r border-gray-200"
+                                        >
+                                            -
+                                        </th>
+                                    );
+                                }
+
+                                return (
+                                    <React.Fragment key={`header-${mod.id}`}>
+                                        {moduleControles.map((controle) => (
+                                            <th
+                                                key={`header-${mod.id}-controle-${controle.id}`}
+                                                className="px-6 py-3 text-center text-sm font-medium text-gray-500 border-r border-gray-200"
+                                            >
+                                                CC {controle.numero_controle}
+                                            </th>
+                                        ))}
+                                        <th className="px-6 py-3 text-center text-sm font-medium text-gray-500 border-r border-gray-200">
+                                            Moyenne
+                                        </th>
                                     </React.Fragment>
                                 );
                             })}
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                        {etudiants.map((etudiant) => (
+                            <tr key={etudiant.id} className="hover:bg-gray-50">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 border-r border-gray-200">
+                                    {etudiant.nom} {etudiant.prenom}
+                                </td>
+                                {modules.map((module) => {
+                                    const moduleControles = getModuleControles(
+                                        module.id
+                                    );
+
+                                    if (moduleControles.length === 0) {
+                                        return (
+                                            <td
+                                                key={`student-${etudiant.id}-module-${module.id}-empty`}
+                                                className="px-6 py-4 whitespace-nowrap text-sm text-center border-r border-gray-200"
+                                            >
+                                                -
+                                            </td>
+                                        );
+                                    }
+
+                                    return (
+                                        <React.Fragment
+                                            key={`student-${etudiant.id}-module-${module.id}`}
+                                        >
+                                            {moduleControles.map((controle) => (
+                                                <td
+                                                    key={`student-${etudiant.id}-module-${module.id}-controle-${controle.id}`}
+                                                    className="px-6 py-4 whitespace-nowrap text-sm text-center border-r border-gray-200"
+                                                >
+                                                    {notes[
+                                                        `${etudiant.id}-${controle.id}`
+                                                    ] ? (
+                                                        <span
+                                                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                                                notes[
+                                                                    `${etudiant.id}-${controle.id}`
+                                                                ] >= 10
+                                                                    ? "bg-green-100 text-green-800"
+                                                                    : "bg-red-100 text-red-800"
+                                                            }`}
+                                                        >
+                                                            {
+                                                                notes[
+                                                                    `${etudiant.id}-${controle.id}`
+                                                                ]
+                                                            }
+                                                        </span>
+                                                    ) : (
+                                                        "-"
+                                                    )}
+                                                </td>
+                                            ))}
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-center border-r border-gray-200 bg-blue-50 font-medium">
+                                                {calculateAverageForStudent(
+                                                    etudiant.id,
+                                                    moduleControles
+                                                )}
+                                            </td>
+                                        </React.Fragment>
+                                    );
+                                })}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }

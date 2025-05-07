@@ -31,7 +31,8 @@ class FiliereController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $filiere = Filiere::findOrFail($id);
+        return response()->json($filiere);
     }
 
     /**

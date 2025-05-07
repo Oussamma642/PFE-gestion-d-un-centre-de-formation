@@ -4,8 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-
 use App\Models\Module;
+
+use App\Models\Controle;
 
 class ControleController extends Controller
 {
@@ -68,4 +69,14 @@ class ControleController extends Controller
     {
         //
     }
+
+    public function getControlesOfPremiereAnneeByFiliere($filiereId){
+        return Controle::with('module')
+        ->whereHas('module', function($q) use ($filiereId) {
+            $q->where('filiere_id', $filiereId)
+              ->where('annee', 'premiere_annee');
+        })
+        ->get();
+    }
+
 }

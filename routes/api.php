@@ -44,7 +44,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('/modules', ModuleController::class);
 
     // ------ Controles
-    Route::get('controles/module/{id}', [ControleController::class, "getControlesByModuleId"]);
+    Route::get('/controles/module/{id}', [ControleController::class, "getControlesByModuleId"]); // Based on the module Id
+    Route::get('/controles/modules/premiere_annee/filiere/{filiere}', [ControleController::class, "getControlesOfPremiereAnneeByFiliere"]); // Based on the filiere, fetch all the modules of premiere_anne
+    
 
     // ------ Notes Controles
     Route::get('/notes/module/{moduleId}', [NoteController::class, 'getNotesByModuleId']);
