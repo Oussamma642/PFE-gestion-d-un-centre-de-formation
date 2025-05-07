@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Models\Module;
+use App\Models\Examen;
+
 
 class ExamenController extends Controller
 {
@@ -63,4 +65,15 @@ class ExamenController extends Controller
         // Get all examens related to the module
         return $module->examens; // This will return the collection of examens
     }   
+
+    public function getExamensOfPremiereAnneeByFiliere($filiereId)
+    {
+        return Examen::with('module')
+            ->whereHas('module', function($q) use ($filiereId) {
+                $q->where('filiere_id', $filiereId)
+                  ->where('annee', 'premiere_annee');
+            })
+            ->get();
+    }
+
 }

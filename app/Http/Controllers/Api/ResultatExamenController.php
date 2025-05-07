@@ -2,8 +2,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\ResultatExamen;
 use App\Models\Examen;
+use App\Models\ResultatExamen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -27,7 +27,7 @@ class ResultatExamenController extends Controller
 
         $validated = $request->validate([
             '*.etudiant_id' => 'required|exists:etudiants,id',
-            '*.examen_id' => 'required|exists:examens,id', // Corrected table name
+            '*.examen_id'   => 'required|exists:examens,id', // Corrected table name
             '*.note'        => 'required|numeric|min:0|max:20',
         ]);
 
@@ -75,6 +75,31 @@ class ResultatExamenController extends Controller
         $notes = ResultatExamen::whereIn('examen_id', $examens)->get();
 
         return response()->json($notes);
+    }
+
+    public function getExamensNotesOfPremiereAnnee($filiereId)
+    {
+
+        // $resultatExamens = ResultatExamen::with(['etudiant', 'examen.module.filiere'])
+        //     ->whereHas('examen.module', function ($query) use ($filiereId) {
+        //         $query->where('annee', 'premiere_annee')
+        //             ->where('filiere_id', $filiereId);
+        //     })
+        //     ->get();
+        // $resultatExamens = ResultatExamen::whereHas('examen.module', function($query) use ($filiereId) {
+        //     $resultatExamens = ResultatExamen::with(['examen'])
+        //     ->whereHas('examen.module', function($query) use ($filiereId) {
+        //     $query->where('annee', 'premiere_annee')
+        //           ->where('filiere_id', $filiereId);
+        // })
+        // ->get();
+
+        $resultatExamens = ResultatExamen::whereHas('examen.module', function ($query) use ($filiereId) {
+            $query->where('annee', 'premiere_annee')
+                ->where('filiere_id', $filiereId);
+        })
+            ->get();
+        return response()->json($resultatExamens);
     }
 
 }

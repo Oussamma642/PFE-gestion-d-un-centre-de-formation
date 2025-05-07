@@ -83,4 +83,16 @@ class NoteController extends Controller
         return Excel::download(new NotesExport($moduleId), 'notes_module_' . $moduleId . '.xlsx');
     }
 
+    public function getNotesOfPremiereAnnee($filiereId)
+    {
+        $notes = Note::with(['etudiant', 'controle.module.filiere'])
+            ->whereHas('controle.module', function ($query) use ($filiereId) {
+                $query->where('annee', 'premiere_annee')
+                    ->where('filiere_id', $filiereId);
+            })
+            ->get();
+
+        return response()->json($notes);
+    }
+
 }

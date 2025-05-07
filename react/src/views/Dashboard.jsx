@@ -389,11 +389,12 @@ function Dashboard() {
                                                         </th>
 
                                                         <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200 sticky left-0 bg-gray-50">
-                                                            Examen Pratique
-                                                        </th>
-                                                        <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200 sticky left-0 bg-gray-50">
                                                             Examen Théorique
                                                         </th>
+                                                        <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200 sticky left-0 bg-gray-50">
+                                                            Examen Pratique
+                                                        </th>
+                                                        
                                                     </tr>
                                                 </thead>
                                             )}

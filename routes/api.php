@@ -53,10 +53,23 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // ------ Examens To fetch examens infos by ID
     Route::get('examens/module/{id}', [ExamenController::class, "getExamensByModuleId"]);
+    // ------ Examens of premiere_annee To fetch examens infos by filiere
+    Route::get('examens/modules/premiere_annee/filiere/{filiere}', [ExamenController::class, "getExamensOfPremiereAnneeByFiliere"]);
+    
+
     
     // ------ Notes Examens
     Route::get('/notesexamens/module/{moduleId}', [ResultatExamenController::class, 'getNotesByModuleId']); // to fetch existing exmanes notes by module ID
+    Route::get('/notesexamens/premiere_annee/filiere/{filiere}', [ResultatExamenController::class, 'getExamensNotesOfPremiereAnnee']); // to fetch existing exmanes notes by module ID
     Route::post('/notes/examens', [ResultatExamenController::class, 'store']);
+
+    // ------ Passage 1 vers 2
+    // ------ get notes of controles of all the modules of premiere annee of a filiere
+    Route::get('/notes/premiere_annee/filiere/{filiere}', [NoteController::class, 'getNotesOfPremiereAnnee']);
+    
+    // ------ get examens notes of all the modules of premiere annee of a filiere
+    // Route::get('/notes-examens/premiere_annee/filiere/{filiere}', [ResultatExamenController::class, 'getExamensNotesOfPremiereAnnee']);
+
 });
 
 Route::post('/signup', [AuthController::class, 'signup']);
