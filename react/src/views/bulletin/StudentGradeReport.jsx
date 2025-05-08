@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import axiosClient from "../../axios-client";
 import { useReactToPrint } from "react-to-print";
 import StudentInfos from "./StudentInfos";
+import { m } from "framer-motion";
 
 const StudentGradeReport = () => {
     const componentRef = useRef();
@@ -127,16 +128,74 @@ const StudentGradeReport = () => {
         ],
         decision: "Exclu",
     });
-
     const [etudiantPersonalInfos, setEtudiantPersonalInfos] = useState(null);
+    const [modules, setModules] = useState([]);
+    const [notes, setNotes] = useState({});
+    const [controles, setControles] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const filiere = 4; // TODO: Get this from the URL or context
 
+    // Etudiants Infos
     useEffect(() => {
         const getEtudiantPersonalInfos = async () => {
-            const response = await axiosClient.get("/bulletin/etudiants/12/filiere/4");
-            console.log(response.data);
+            const response = await axiosClient.get(
+                "/bulletin/etudiants/12/filiere/4"
+            );
             setEtudiantPersonalInfos(response.data);
         };
         getEtudiantPersonalInfos();
+    }, []);
+
+    // Get Modules Based on annee and filiere
+    useEffect(() => {
+        const getModules = async () => {
+            const response = await axiosClient.get(
+                "/modules/annee/premiere_annee/filiere/4"
+            );
+            // console.log('Modules:', response.data);
+            setModules(response.data);
+        };
+        getModules();
+    }, []);
+
+    // Fetch controles of all the modules of premiere annee of a filiere
+    useEffect(() => {
+        const fetchControles = async () => {
+            setLoading(true);
+            try {
+                const response = await axiosClient.get(
+                    `controles/modules/premiere_annee/filiere/${filiere}`
+                );
+                console.log("Controles:", response.data);
+                setControles(response.data);
+            } catch (error) {
+                console.error("Error fetching controles:", error);
+                setControles([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchControles();
+    }, [filiere]);
+
+    // Fetch notes of controles of all the modules of premiere annee of a filiere
+    useEffect(() => {
+        const fetchNotes = async () => {
+            const response = await axiosClient.get(
+                `/notes/premiere_annee/filiere/${filiere}`
+            );
+            const fetchedNotes = response.data;
+
+            const notesMap = {};
+            fetchedNotes.forEach((note) => {
+                notesMap[`${note.etudiant_id}-${note.controle_id}`] = note.note;
+            });
+
+            setNotes(notesMap);
+            console.log(notesMap);
+        };
+        fetchNotes();
     }, []);
 
     // Calculate averages
@@ -193,6 +252,36 @@ const StudentGradeReport = () => {
         )}`,
     });
 
+    const calculateAverageForStudent = (studentId, moduleControles) => {
+        console.log("Module Controles:", moduleControles);
+        let total = 0;
+        let count = 0;
+        // Determine which notes object to use based on the selected type
+        const notesObject = notes;
+        // Loop through all controls/exams for this student
+
+        if(!moduleControles) {
+            return "-";
+        }
+
+        moduleControles.forEach((controle) => {
+            const key = `${studentId}-${controle.id}`;
+            const grade = notesObject[key];
+            // Only count grades that exist and are valid numbers
+            if (grade && !isNaN(parseFloat(grade))) {
+                total += parseFloat(grade);
+                count++;
+            }
+        });
+        // Return the average or a dash if no grades exist
+        return count > 0 ? (total / count).toFixed(2) : "-";
+    };
+
+    // Group controles by module
+    const getModuleControles = (moduleId) => {
+        return controles.filter((controle) => controle.module_id === moduleId);
+    };
+
     if (
         !etudiantPersonalInfos ||
         !etudiantPersonalInfos.filiere ||
@@ -214,6 +303,7 @@ const StudentGradeReport = () => {
             </div>
 
             <div ref={componentRef} className="p-4 bg-white">
+                {/* Student Infos */}
                 <StudentInfos
                     key={etudiantPersonalInfos.id}
                     nom={etudiantPersonalInfos.nom}
@@ -233,10 +323,16 @@ const StudentGradeReport = () => {
                             >
                                 Unités de formation et coefficient
                             </th>
+
+                            <th
+                                className="border border-gray-300 p-2 text-left"
+                                rowSpan="2"
+                            >
+                                Coeff
+                            </th>
+
                             <th className="border border-gray-300 p-2 text-center">
-                                Contrôles
-                                <br />
-                                Continu
+                                Moyenne <br /> des Contrôles Continu
                             </th>
                             <th
                                 className="border border-gray-300 p-2 text-center"
@@ -264,11 +360,46 @@ const StudentGradeReport = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {studentData.modules.map((module) => (
+                        {modules.map((module) => {
+                            const moduleControles = getModuleControles(module.id);
+
+                            return (
+                                <tr key={module.id}>
+                                    <td className="border border-gray-300 p-2">
+                                        {module.id} : {module.libelle}
+                                    </td>
+                                    <td className="border border-gray-300 p-2 text-center">
+                                        {module.coefficient}
+                                    </td>
+                                    <td className="border border-gray-300 p-2 text-center">
+                                        {/* {module.controle.toFixed(2)} */}{" "}
+                                        {calculateAverageForStudent(
+                                            etudiantPersonalInfos.id,
+                                            moduleControles
+                                        )}
+                                    </td>
+                                    <td className="border border-gray-300 p-2 text-center">
+                                        {/* {module.examenTheorique.toFixed(2)} */}{" "}
+                                        exT
+                                    </td>
+                                    <td className="border border-gray-300 p-2 text-center">
+                                        {/* {module.examenPratique.toFixed(2)} */}{" "}
+                                        exP
+                                    </td>
+                                    <td className="border border-gray-300 p-2"></td>
+                                </tr>
+                            );
+                        })}
+
+                        {/* {studentData.modules.map((module) => (
                             <tr key={module.id}>
                                 <td className="border border-gray-300 p-2">
                                     {module.id} : {module.name}
                                 </td>
+                                <td className="border border-gray-300 p-2">
+                                    13
+                                </td>
+                                
                                 <td className="border border-gray-300 p-2 text-center">
                                     {module.coefficient}
                                 </td>
@@ -280,7 +411,7 @@ const StudentGradeReport = () => {
                                 </td>
                                 <td className="border border-gray-300 p-2"></td>
                             </tr>
-                        ))}
+                        ))} */}
                         <tr className="font-bold">
                             <td className="border border-gray-300 p-2 text-right">
                                 Moyenne des notes
