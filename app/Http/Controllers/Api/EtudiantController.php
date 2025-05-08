@@ -1,12 +1,10 @@
 <?php
-
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Etudiant;
-
 use App\Http\Resources\EtudiantResource;
+use App\Models\Etudiant;
+use Illuminate\Http\Request;
 
 class EtudiantController extends Controller
 {
@@ -37,7 +35,7 @@ class EtudiantController extends Controller
 
     public function showByAnneeFiliere($annee, $filiere)
     {
-        $etudiants = Etudiant::where('annee', $annee)->where('filiere_id', $filiere)->get();
+        $etudiants = Etudiant::with(['filiere', 'promotion'])->where('annee', $annee)->where('filiere_id', $filiere)->get();
 
         if ($etudiants->isEmpty()) {
             return response()->json(['message' => 'Aucun module trouvé pour cette année et cette filière.'], 404);
@@ -62,15 +60,14 @@ class EtudiantController extends Controller
         //
     }
 
-    
     // --------- GET Student Infos, his filiere and promotions
     public function getEtudiantPersonalInfos($id, $filiere)
     {
         $etudiant = Etudiant::with(['filiere', 'promotion'])
-        ->where('id', $id)
-        ->where('filiere_id', $filiere)
-        ->first();
-        
+            ->where('id', $id)
+            ->where('filiere_id', $filiere)
+            ->first();
+
         return \response()->json($etudiant);
     }
 }

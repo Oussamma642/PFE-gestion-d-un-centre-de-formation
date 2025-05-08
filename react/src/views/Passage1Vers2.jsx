@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axiosClient from "../axios-client";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { td, tr } from "framer-motion/client";
 
 function Passage1Vers2() {
@@ -13,8 +13,8 @@ function Passage1Vers2() {
     const [loading, setLoading] = useState(true);
     const [modules, setModules] = useState([]);
     const [etudiants, setEtudiants] = useState([]);
-
     const { filiere } = useParams();
+    const navigate = useNavigate();
 
     // fetch the filiere detail
     useEffect(() => {
@@ -452,6 +452,15 @@ function Passage1Vers2() {
                         ))}
                     </tbody>
                 </table>
+            </div>
+            <div className="flex justify-center mt-8">
+                <button 
+                onClick={()=>navigate(`/dashboard/preparer-bulletin/filiere/${filiere}/annee/premiere_annee`)}
+                
+
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer">
+                    Générer les bulletins
+                </button>
             </div>
         </div>
     );

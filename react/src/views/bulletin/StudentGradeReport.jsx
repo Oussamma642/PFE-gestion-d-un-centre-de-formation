@@ -4,7 +4,7 @@ import { useReactToPrint } from "react-to-print";
 import StudentInfos from "./StudentInfos";
 import { m } from "framer-motion";
 
-const StudentGradeReport = () => {
+const StudentGradeReport = ({etudiantPersonalInfos, modules ,controles, notes ,examens, notesExamens}) => {
     const componentRef = useRef();
     const [studentData, setStudentData] = useState({
         studentName: "BENHRAOUI MUSTAPHA",
@@ -128,117 +128,119 @@ const StudentGradeReport = () => {
         ],
         decision: "Exclu",
     });
-    const [etudiantPersonalInfos, setEtudiantPersonalInfos] = useState(null);
-    const [modules, setModules] = useState([]);
-    const [notes, setNotes] = useState({});
-    const [controles, setControles] = useState([]);
-    const [examens, setExamens] = useState([]);
-    const [notesExamens, setNotesExamens] = useState({});
-    const [loading, setLoading] = useState(false);
-    const filiere = 4; // TODO: Get this from the URL or context
+    // const [etudiantPersonalInfos, setEtudiantPersonalInfos] = useState(null);
+    // const [modules, setModules] = useState([]);
+    // const [notes, setNotes] = useState({});
+    // const [controles, setControles] = useState([]);
+    // const [examens, setExamens] = useState([]);
+    // const [notesExamens, setNotesExamens] = useState({});
+    // const [loading, setLoading] = useState(false);
+    // const filiere = 4; // TODO: Get this from the URL or context
 
     // Etudiants Infos
-    useEffect(() => {
-        const getEtudiantPersonalInfos = async () => {
-            const response = await axiosClient.get(
-                "/bulletin/etudiants/12/filiere/4"
-            );
-            setEtudiantPersonalInfos(response.data);
-        };
-        getEtudiantPersonalInfos();
-    }, []);
+    // useEffect(() => {
+    //     const getEtudiantPersonalInfos = async () => {
+    //         const response = await axiosClient.get(
+    //             "/bulletin/etudiants/11/filiere/4"
+    //         );
+    //         setEtudiantPersonalInfos(response.data);
+    //     };
+    //     getEtudiantPersonalInfos();
+    // }, []);
 
-    // Get Modules Based on annee and filiere
-    useEffect(() => {
-        const getModules = async () => {
-            const response = await axiosClient.get(
-                "/modules/annee/premiere_annee/filiere/4"
-            );
-            // console.log('Modules:', response.data);
-            setModules(response.data);
-        };
-        getModules();
-    }, []);
+    // // Get Modules Based on annee and filiere
+    // useEffect(() => {
+    //     const getModules = async () => {
+    //         const response = await axiosClient.get(
+    //             "/modules/premiere_anneeannee/filiere/4"
+    //         );
+    //         // console.log('Modules:', response.data);
+    //         setModules(response.data);
+    //     };
+    //     getModules();
+    // }, []);
 
-    // Fetch controles of all the modules of premiere annee of a filiere
-    useEffect(() => {
-        const fetchControles = async () => {
-            setLoading(true);
-            try {
-                const response = await axiosClient.get(
-                    `controles/modules/premiere_annee/filiere/${filiere}`
-                );
-                console.log("Controles:", response.data);
-                setControles(response.data);
-            } catch (error) {
-                console.error("Error fetching controles:", error);
-                setControles([]);
-            } finally {
-                setLoading(false);
-            }
-        };
+    // // Fetch controles of all the modules of premiere annee of a filiere
+    // useEffect(() => {
+    //     const fetchControles = async () => {
+    //         setLoading(true);
+    //         try {
+    //             const response = await axiosClient.get(
+    //                 `controles/modules/premiere_annee/filiere/${filiere}`
+    //             );
+    //             console.log("Controles:", response.data);
+    //             setControles(response.data);
+    //         } catch (error) {
+    //             console.error("Error fetching controles:", error);
+    //             setControles([]);
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     };
 
-        fetchControles();
-    }, [filiere]);
+    //     fetchControles();
+    // }, [filiere]);
 
-    // Fetch notes of controles of all the modules of premiere annee of a filiere
-    useEffect(() => {
-        const fetchNotes = async () => {
-            const response = await axiosClient.get(
-                `/notes/premiere_annee/filiere/${filiere}`
-            );
-            const fetchedNotes = response.data;
+    // // Fetch notes of controles of all the modules of premiere annee of a filiere
+    // useEffect(() => {
+    //     const fetchNotes = async () => {
+    //         const response = await axiosClient.get(
+    //             `/notes/premiere_annee/filiere/${filiere}`
+    //         );
+    //         const fetchedNotes = response.data;
 
-            const notesMap = {};
-            fetchedNotes.forEach((note) => {
-                notesMap[`${note.etudiant_id}-${note.controle_id}`] = note.note;
-            });
+    //         const notesMap = {};
+    //         fetchedNotes.forEach((note) => {
+    //             notesMap[`${note.etudiant_id}-${note.controle_id}`] = note.note;
+    //         });
 
-            setNotes(notesMap);
-            console.log(notesMap);
-        };
-        fetchNotes();
-    }, []);
+    //         setNotes(notesMap);
+    //         console.log(notesMap);
+    //     };
+    //     fetchNotes();
+    // }, []);
 
-    // Fetch examens of modules of premiere annee of a filiere
-    useEffect(() => {
-        const fetchExamens = async () => {
-            setLoading(true);
-            try {
-                const response = await axiosClient.get(
-                    `examens/modules/premiere_annee/filiere/${filiere}`
-                );
-                setExamens(response.data);
-            } catch (error) {
-                console.error("Error fetching examens:", error);
-                setExamens([]);
-            } finally {
-                setLoading(false);
-            }
-        };
+    // // Fetch examens of modules of premiere annee of a filiere
+    // useEffect(() => {
+    //     const fetchExamens = async () => {
+    //         setLoading(true);
+    //         try {
+    //             const response = await axiosClient.get(
+    //                 `examens/modules/premiere_annee/filiere/${filiere}`
+    //             );
+    //             setExamens(response.data);
+    //         } catch (error) {
+    //             console.error("Error fetching examens:", error);
+    //             setExamens([]);
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     };
 
-        fetchExamens();
-    }, [filiere]);
+    //     fetchExamens();
+    // }, [filiere]);
 
-    // fetch examens notes of all the modules of premiere annee of a filiere
-    useEffect(() => {
-        const fetchExamensNotes = async () => {
-            const response = await axiosClient.get(
-                `/notesexamens/premiere_annee/filiere/${filiere}`
-            );
+    // // fetch examens notes of all the modules of premiere annee of a filiere
+    // useEffect(() => {
+    //     const fetchExamensNotes = async () => {
+    //         const response = await axiosClient.get(
+    //             `/notesexamens/premiere_annee/filiere/${filiere}`
+    //         );
 
-            const fetchedNotes = response.data;
+    //         const fetchedNotes = response.data;
 
-            const notesMap = {};
-            fetchedNotes.forEach((note) => {
-                notesMap[`${note.etudiant_id}-${note.examen_id}`] = note.note;
-            });
-            setNotesExamens(notesMap);
-        };
-        fetchExamensNotes();
-    }, [filiere]);
+    //         const notesMap = {};
+    //         fetchedNotes.forEach((note) => {
+    //             notesMap[`${note.etudiant_id}-${note.examen_id}`] = note.note;
+    //         });
+    //         setNotesExamens(notesMap);
+    //     };
+    //     fetchExamensNotes();
+    // }, [filiere]);
 
     // Calculate averages
+    
+    
     const calculateAverages = () => {
         const controleAvg =
             studentData.modules.reduce(
