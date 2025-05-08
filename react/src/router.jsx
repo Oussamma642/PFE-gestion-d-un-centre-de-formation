@@ -8,6 +8,7 @@ import Dashboard from "./views/Dashboard";
 import WorkingDirectory from "./views/WorkingDirectory";
 import GestionResources from "./views/GestionResources";
 import Passage1Vers2 from "./views/Passage1Vers2";
+import StudentGradeReport from "./views/bulletin/StudentGradeReport";
 
 const router = createBrowserRouter([
   // DefaultLayout
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
       {
         path:"/dashboard/filieres/:filiere/passage-deuxieme-annee",
         element:<Passage1Vers2/>
+      },
+      {
+        path:"/dashboard/bulletin",
+        element:<StudentGradeReport/>
       }
 
     ],

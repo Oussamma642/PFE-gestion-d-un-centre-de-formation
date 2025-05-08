@@ -61,4 +61,14 @@ class EtudiantController extends Controller
     {
         //
     }
+
+    
+    // --------- GET Student Infos, his filiere and promotions
+    public function getEtudiantPersonalInfos($id)
+    {
+        $etudiant = Etudiant::with(['filiere', 'promotion'])
+        ->where('id', $id)->get();
+        
+        return \response()->json($etudiant);
+    }
 }
