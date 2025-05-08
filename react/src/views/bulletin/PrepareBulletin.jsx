@@ -1,8 +1,10 @@
 // PrepareBulletin.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axiosClient from "../../axios-client";
 import StudentGradeReport from "./StudentGradeReport";
 import { useParams } from "react-router-dom";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 function PrepareBulletin() {
     const [etudiants, setEtudiants] = useState([]);
@@ -13,8 +15,11 @@ function PrepareBulletin() {
     const [notesExamens, setNotesExamens] = useState({});
     const [loading, setLoading] = useState(true);
 
-    const {annee} = useParams();
-    const {filiere} = useParams();
+    const { annee } = useParams();
+    const { filiere } = useParams();
+
+    // Refs for each student's bulletin
+    const bulletinRefs = useRef([]);
 
     // Fetch all data in parallel when component mounts
     useEffect(() => {
@@ -58,20 +63,17 @@ function PrepareBulletin() {
                     fetchExamensNotes,
                 ]);
 
-
-
                 // Set the state with responses
                 setEtudiants(etudiantsResponse.data);
                 setModules(modulesResponse.data);
                 setControles(controlesResponse.data);
                 setExamens(examensResponse.data);
 
-                
-                console.log("Modules Response",modulesResponse.data);
-                console.log("Controles Response",controlesResponse.data);
-                console.log("Examens Response",examensResponse.data)
+                console.log("Modules Response", modulesResponse.data);
+                console.log("Controles Response", controlesResponse.data);
+                console.log("Examens Response", examensResponse.data);
 
-                console.log("etudiants Response",etudiantsResponse.data);
+                console.log("etudiants Response", etudiantsResponse.data);
                 // Process notes into a map for easy lookup
                 const notesMap = {};
                 notesResponse.data.forEach((note) => {
@@ -79,7 +81,7 @@ function PrepareBulletin() {
                         note.note;
                 });
                 setNotes(notesMap);
-                console.log("Notes Response",notesMap);
+                console.log("Notes Response", notesMap);
 
                 // Process exam notes into a map for easy lookup
                 const examNotesMap = {};
@@ -88,7 +90,7 @@ function PrepareBulletin() {
                         note.note;
                 });
                 setNotesExamens(examNotesMap);
-                console.log("Examens Notes Response",examNotesMap);
+                console.log("Examens Notes Response", examNotesMap);
             } catch (error) {
                 console.error("Error fetching data:", error);
             } finally {
@@ -99,6 +101,45 @@ function PrepareBulletin() {
         fetchAllData();
     }, [annee, filiere]);
 
+    const handlePrint = async () => {
+        const pdf = new jsPDF("p", "mm", "a4");
+        const pxPerMm = 96 / 25.4; // ≈ 3.78px per mm at 96dpi
+
+        for (let i = 0; i < bulletinRefs.current.length; i++) {
+            const ref = bulletinRefs.current[i];
+            if (!ref) continue;
+
+            // compute the mm size → px size
+            const mmW = pdf.internal.pageSize.getWidth();
+            const mmH = pdf.internal.pageSize.getHeight();
+            const widthPx = mmW * pxPerMm;
+            const heightPx = mmH * pxPerMm;
+
+            // scroll to top-left of our element
+            const { left, top } = ref.getBoundingClientRect();
+            window.scrollTo(window.scrollX + left, window.scrollY + top);
+
+            const canvas = await html2canvas(ref, {
+                width: widthPx,
+                height: heightPx,
+                scale: 2,
+                backgroundColor: "#ffffff",
+                foreignObjectRendering: true,
+                scrollX: -(window.scrollX + left),
+                scrollY: -(window.scrollY + top),
+            });
+
+            const imgData = canvas.toDataURL("image/png");
+            const pdfW = pdf.internal.pageSize.getWidth();
+            const pdfH = (canvas.height * pdfW) / canvas.width;
+
+            if (i > 0) pdf.addPage();
+            pdf.addImage(imgData, "PNG", 0, 0, pdfW, pdfH);
+        }
+
+        pdf.save("bulletins.pdf");
+    };
+
     if (loading) {
         return <div className="p-4 text-center">Chargement des données...</div>;
     }
@@ -108,17 +149,32 @@ function PrepareBulletin() {
             {etudiants.length === 0 ? (
                 <div className="p-4 text-center">Aucun étudiant trouvé</div>
             ) : (
-                etudiants.map((etudiant) => (
-                    <StudentGradeReport
-                        key={etudiant.id}
-                        etudiantPersonalInfos={etudiant}
-                        modules={modules}
-                        controles={controles}
-                        notes={notes}
-                        examens={examens}
-                        notesExamens={notesExamens}
-                    />
-                ))
+                <>
+                    <div className="mb-4 flex justify-between">
+                        <h1 className="text-2xl font-bold">Relevé de notes</h1>
+                        <button
+                            onClick={handlePrint}
+                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                        >
+                            Télécharger en PDF
+                        </button>
+                    </div>
+                    {etudiants.map((etudiant, idx) => (
+                        <div
+                            key={etudiant.id}
+                            ref={(el) => (bulletinRefs.current[idx] = el)}
+                        >
+                            <StudentGradeReport
+                                etudiantPersonalInfos={etudiant}
+                                modules={modules}
+                                controles={controles}
+                                notes={notes}
+                                examens={examens}
+                                notesExamens={notesExamens}
+                            />
+                        </div>
+                    ))}
+                </>
             )}
         </div>
     );

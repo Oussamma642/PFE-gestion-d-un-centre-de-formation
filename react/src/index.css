@@ -241,3 +241,15 @@ table > tbody > tr > td {
         transform: translateY(0);
     }
 }
+
+/* src/index.css (or public/index.html <style>…) */
+.bulletin-page {
+  width: 210mm;
+  height: 297mm;
+  padding: 10mm;
+  box-sizing: border-box;
+  background: white;
+  page-break-after: always;
+  break-after: page;
+  overflow: hidden;
+}
