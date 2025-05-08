@@ -132,6 +132,8 @@ const StudentGradeReport = () => {
     const [modules, setModules] = useState([]);
     const [notes, setNotes] = useState({});
     const [controles, setControles] = useState([]);
+    const [examens, setExamens] = useState([]);
+    const [notesExamens, setNotesExamens] = useState({});
     const [loading, setLoading] = useState(false);
     const filiere = 4; // TODO: Get this from the URL or context
 
@@ -198,6 +200,44 @@ const StudentGradeReport = () => {
         fetchNotes();
     }, []);
 
+    // Fetch examens of modules of premiere annee of a filiere
+    useEffect(() => {
+        const fetchExamens = async () => {
+            setLoading(true);
+            try {
+                const response = await axiosClient.get(
+                    `examens/modules/premiere_annee/filiere/${filiere}`
+                );
+                setExamens(response.data);
+            } catch (error) {
+                console.error("Error fetching examens:", error);
+                setExamens([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchExamens();
+    }, [filiere]);
+
+    // fetch examens notes of all the modules of premiere annee of a filiere
+    useEffect(() => {
+        const fetchExamensNotes = async () => {
+            const response = await axiosClient.get(
+                `/notesexamens/premiere_annee/filiere/${filiere}`
+            );
+
+            const fetchedNotes = response.data;
+
+            const notesMap = {};
+            fetchedNotes.forEach((note) => {
+                notesMap[`${note.etudiant_id}-${note.examen_id}`] = note.note;
+            });
+            setNotesExamens(notesMap);
+        };
+        fetchExamensNotes();
+    }, [filiere]);
+
     // Calculate averages
     const calculateAverages = () => {
         const controleAvg =
@@ -260,7 +300,7 @@ const StudentGradeReport = () => {
         const notesObject = notes;
         // Loop through all controls/exams for this student
 
-        if(!moduleControles) {
+        if (!moduleControles) {
             return "-";
         }
 
@@ -280,6 +320,16 @@ const StudentGradeReport = () => {
     // Group controles by module
     const getModuleControles = (moduleId) => {
         return controles.filter((controle) => controle.module_id === moduleId);
+    };
+
+    // Group examens by module
+    const getModuleExams = (moduleId) => {
+        return examens.filter((exam) => exam.module_id === moduleId);
+    };
+
+    // Get specific exam by module and type
+    const getExamByType = (moduleExams, type) => {
+        return moduleExams.find((exam) => exam.type === type);
     };
 
     if (
@@ -361,8 +411,20 @@ const StudentGradeReport = () => {
                     </thead>
                     <tbody>
                         {modules.map((module) => {
-                            const moduleControles = getModuleControles(module.id);
-
+                            // Get the controles for this module
+                            const moduleControles = getModuleControles(
+                                module.id
+                            );
+                            // Get the exam for this module
+                            const moduleExams = getModuleExams(module.id);
+                            const theoreticalExam = getExamByType(
+                                moduleExams,
+                                "theorique"
+                            );
+                            const practicalExam = getExamByType(
+                                moduleExams,
+                                "pratique"
+                            );
                             return (
                                 <tr key={module.id}>
                                     <td className="border border-gray-300 p-2">
@@ -380,38 +442,49 @@ const StudentGradeReport = () => {
                                     </td>
                                     <td className="border border-gray-300 p-2 text-center">
                                         {/* {module.examenTheorique.toFixed(2)} */}{" "}
-                                        exT
+                                        {theoreticalExam ? (
+                                            <span
+                                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                                    notesExamens[
+                                                        `${etudiantPersonalInfos.id}-${theoreticalExam.id}`
+                                                    ] >= 10
+                                                        ? "bg-green-100 text-green-800"
+                                                        : "bg-red-100 text-red-800"
+                                                }`}
+                                            >
+                                                {notesExamens[
+                                                    `${etudiantPersonalInfos.id}-${theoreticalExam.id}`
+                                                ] || "-"}
+                                            </span>
+                                        ) : (
+                                            "-"
+                                        )}
                                     </td>
                                     <td className="border border-gray-300 p-2 text-center">
                                         {/* {module.examenPratique.toFixed(2)} */}{" "}
-                                        exP
+                                        {practicalExam ? (
+                                            <span
+                                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                                    notesExamens[
+                                                        `${etudiantPersonalInfos.id}-${practicalExam.id}`
+                                                    ] >= 10
+                                                        ? "bg-green-100 text-green-800"
+                                                        : "bg-red-100 text-red-800"
+                                                }`}
+                                            >
+                                                {notesExamens[
+                                                    `${etudiantPersonalInfos.id}-${practicalExam.id}`
+                                                ] || "-"}
+                                            </span>
+                                        ) : (
+                                            "-"
+                                        )}
                                     </td>
                                     <td className="border border-gray-300 p-2"></td>
                                 </tr>
                             );
                         })}
 
-                        {/* {studentData.modules.map((module) => (
-                            <tr key={module.id}>
-                                <td className="border border-gray-300 p-2">
-                                    {module.id} : {module.name}
-                                </td>
-                                <td className="border border-gray-300 p-2">
-                                    13
-                                </td>
-                                
-                                <td className="border border-gray-300 p-2 text-center">
-                                    {module.coefficient}
-                                </td>
-                                <td className="border border-gray-300 p-2 text-center">
-                                    {module.controle.toFixed(2)}
-                                </td>
-                                <td className="border border-gray-300 p-2 text-center">
-                                    {module.examenTheorique.toFixed(2)}
-                                </td>
-                                <td className="border border-gray-300 p-2"></td>
-                            </tr>
-                        ))} */}
                         <tr className="font-bold">
                             <td className="border border-gray-300 p-2 text-right">
                                 Moyenne des notes
