@@ -70,7 +70,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('bulletin')->group(function () {
 
         // --------- GET Student Infos, his filiere and promotions
-        Route::get('/etudiants/{id}', [EtudiantController::class, 'getEtudiantPersonalInfos']);
+        Route::get('/etudiants/{id}/filiere/{filiere}', [EtudiantController::class, 'getEtudiantPersonalInfos']);
 
     });
 

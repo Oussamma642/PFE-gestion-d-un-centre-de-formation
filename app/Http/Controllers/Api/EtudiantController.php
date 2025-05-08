@@ -64,10 +64,12 @@ class EtudiantController extends Controller
 
     
     // --------- GET Student Infos, his filiere and promotions
-    public function getEtudiantPersonalInfos($id)
+    public function getEtudiantPersonalInfos($id, $filiere)
     {
         $etudiant = Etudiant::with(['filiere', 'promotion'])
-        ->where('id', $id)->get();
+        ->where('id', $id)
+        ->where('filiere_id', $filiere)
+        ->first();
         
         return \response()->json($etudiant);
     }

@@ -132,9 +132,9 @@ const StudentGradeReport = () => {
 
     useEffect(() => {
         const getEtudiantPersonalInfos = async () => {
-            const response = await axiosClient.get("/bulletin/etudiants/12");
+            const response = await axiosClient.get("/bulletin/etudiants/12/filiere/4");
             console.log(response.data);
-            setEtudiantPersonalInfos(response.data[0]);
+            setEtudiantPersonalInfos(response.data);
         };
         getEtudiantPersonalInfos();
     }, []);
@@ -214,7 +214,6 @@ const StudentGradeReport = () => {
             </div>
 
             <div ref={componentRef} className="p-4 bg-white">
-                Student info table
                 <StudentInfos
                     key={etudiantPersonalInfos.id}
                     nom={etudiantPersonalInfos.nom}
