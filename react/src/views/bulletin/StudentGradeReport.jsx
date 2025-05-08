@@ -415,6 +415,11 @@ const StudentGradeReport = () => {
                             const moduleControles = getModuleControles(
                                 module.id
                             );
+
+                            const moyenne = calculateAverageForStudent(
+                                etudiantPersonalInfos.id,
+                                moduleControles
+                            )
                             // Get the exam for this module
                             const moduleExams = getModuleExams(module.id);
                             const theoreticalExam = getExamByType(
@@ -434,11 +439,9 @@ const StudentGradeReport = () => {
                                         {module.coefficient}
                                     </td>
                                     <td className="border border-gray-300 p-2 text-center">
-                                        {/* {module.controle.toFixed(2)} */}{" "}
-                                        {calculateAverageForStudent(
-                                            etudiantPersonalInfos.id,
-                                            moduleControles
-                                        )}
+                                        <span className={`${moyenne >= 10 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+                                        {moyenne}
+                                        </span>
                                     </td>
                                     <td className="border border-gray-300 p-2 text-center">
                                         {/* {module.examenTheorique.toFixed(2)} */}{" "}
