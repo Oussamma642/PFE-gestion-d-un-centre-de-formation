@@ -109,32 +109,28 @@ function PrepareBulletin() {
             const ref = bulletinRefs.current[i];
             if (!ref) continue;
 
-            // compute the mm size → px size
-            const mmW = pdf.internal.pageSize.getWidth();
-            const mmH = pdf.internal.pageSize.getHeight();
-            const widthPx = mmW * pxPerMm;
-            const heightPx = mmH * pxPerMm;
+            // Compute the dimensions of the PDF page in pixels
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            const widthPx = pdfWidth * pxPerMm;
+            const heightPx = pdfHeight * pxPerMm;
 
-            // scroll to top-left of our element
-            const { left, top } = ref.getBoundingClientRect();
-            window.scrollTo(window.scrollX + left, window.scrollY + top);
-
+            // Capture the content using html2canvas
             const canvas = await html2canvas(ref, {
                 width: widthPx,
                 height: heightPx,
-                scale: 2,
+                scale: 2, // Increase resolution for better quality
                 backgroundColor: "#ffffff",
-                foreignObjectRendering: true,
-                scrollX: -(window.scrollX + left),
-                scrollY: -(window.scrollY + top),
             });
 
+            // Convert the canvas to an image
             const imgData = canvas.toDataURL("image/png");
-            const pdfW = pdf.internal.pageSize.getWidth();
-            const pdfH = (canvas.height * pdfW) / canvas.width;
+            const imgWidth = pdfWidth;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
+            // Add the image to the PDF
             if (i > 0) pdf.addPage();
-            pdf.addImage(imgData, "PNG", 0, 0, pdfW, pdfH);
+            pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
         }
 
         pdf.save("bulletins.pdf");
@@ -151,7 +147,9 @@ function PrepareBulletin() {
             ) : (
                 <>
                     <div className="mb-4 flex justify-between">
-                        <h1 className="text-2xl font-bold">Relevé de notes de la première année</h1>
+                        <h1 className="text-2xl font-bold">
+                            Relevé de notes de la première année
+                        </h1>
                         <button
                             onClick={handlePrint}
                             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
@@ -163,6 +161,7 @@ function PrepareBulletin() {
                         <div
                             key={etudiant.id}
                             ref={(el) => (bulletinRefs.current[idx] = el)}
+                            className="bulletin-page"
                         >
                             <StudentGradeReport
                                 etudiantPersonalInfos={etudiant}

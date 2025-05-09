@@ -250,6 +250,6 @@ table > tbody > tr > td {
   box-sizing: border-box;
   background: white;
   page-break-after: always;
-  break-after: page;
   overflow: hidden;
+  /* color: rgb(255, 0, 0);  */
 }
