@@ -3,6 +3,8 @@ import React, { useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 import StudentInfos from "./StudentInfos";
 
+
+
 const StudentGradeReport = ({
     etudiantPersonalInfos,
     modules,
@@ -133,6 +135,7 @@ const StudentGradeReport = ({
         return count > 0 ? total / count : 0;
     };
 
+
     // Determine student decision based on average
     const determineDecision = (generalAvg) => {
         if (generalAvg >= 10) {
@@ -146,11 +149,28 @@ const StudentGradeReport = ({
 
     const averages = calculateAverages();
     const decision = determineDecision(parseFloat(averages.generalAvg));
+ 
+    // Pour calculer la moyenne des notes des CCs, ExTs, ExPs
+    let sommeMoyCC = 0;
+    let sommeExT = 0;
+    let sommeExP = 0;
+    let sommeCoeffModules = 0;
 
+    // Calculate the Moyenne Générale 
+    function calculateMoyennGenerale(moyGeneraleCC, moyGeneraleExT, moyGeneraleExP){
+        return (((moyGeneraleCC * 3) + (moyGeneraleExT * 2) + (moyGeneraleExP * 3))/8).toFixed(2)
+    }
 
-    if (!etudiantPersonalInfos || !etudiantPersonalInfos.filiere || !etudiantPersonalInfos.promotion) {
+    // Calculate moyenne de (la somme des moyenne CC) et (La somme des EXTs et EXPs)
+    function calculateMoynneCCEXs(somme, sommeCoeffModules)
+    {
+        return (somme / sommeCoeffModules).toFixed(2);
+    }
+
+   if (!etudiantPersonalInfos || !etudiantPersonalInfos.filiere || !etudiantPersonalInfos.promotion) {
         return <p className="p-4">Chargement des infos de l'étudiant…</p>;
     }
+
 
     return (
         <div className="p-4 mb-8 border-b-2">
@@ -218,7 +238,14 @@ const StudentGradeReport = ({
                             const pratiqueGrade = practicalExam 
                                 ? notesExamens[`${etudiantPersonalInfos.id}-${practicalExam.id}`] 
                                 : null;
-                            
+
+                                
+                            // Get Moyenne Generale for CC:
+                            sommeMoyCC += (moyenne * module.coefficient);
+                            sommeExT += (theoriqueGrade * module.coefficient);
+                            sommeExP += (pratiqueGrade * module.coefficient);
+                            sommeCoeffModules += module.coefficient;
+
                             return (
                                 <tr key={module.id}>
                                     <td className="border border-gray-300 p-2">
@@ -238,6 +265,7 @@ const StudentGradeReport = ({
                                             </span>
                                         )}
                                         {moyenne === "-" && "-"}
+                                        {}
                                     </td>
                                     <td className="border border-gray-300 p-2 text-center">
                                         {theoriqueGrade !== null && theoriqueGrade !== undefined ? (
@@ -276,13 +304,21 @@ const StudentGradeReport = ({
                             </td>
                             <td className="border border-gray-300 p-2"></td>
                             <td className="border border-gray-300 p-2 text-center">
-                                {averages.controleAvg}
+
+                                {/* {sommeMoyCC / modules.length} */}
+                                {calculateMoynneCCEXs(sommeMoyCC, sommeCoeffModules)}
                             </td>
                             <td className="border border-gray-300 p-2 text-center">
-                                {averages.theoriqueAvg}
+                                {/* {averages.theoriqueAvg} */}
+                                {/* {moyGenExT / modules.length} */}
+                                {calculateMoynneCCEXs(sommeExT, sommeCoeffModules)}
                             </td>
                             <td className="border border-gray-300 p-2 text-center">
-                                {averages.pratiqueAvg}
+                                {/* {averages.pratiqueAvg} */}
+                                {/* {sommeExP / modules.length} */}
+
+                                {calculateMoynneCCEXs(sommeExP, sommeCoeffModules)}
+
                             </td>
                             <td className="border border-gray-300 p-2"></td>
                         </tr>
@@ -302,7 +338,12 @@ const StudentGradeReport = ({
                                         ? "bg-green-100 text-green-800" 
                                         : "bg-red-100 text-red-800"
                                 }`}>
-                                    {averages.generalAvg}
+                                    {/* {calculateMoyennGenerale(sommeMoyCC, sommeExT, sommeExP, sommeCoeffModules)} */}
+                                    {calculateMoyennGenerale(
+                                        calculateMoynneCCEXs(sommeMoyCC, sommeCoeffModules),
+                                        calculateMoynneCCEXs(sommeExT, sommeCoeffModules),
+                                        calculateMoynneCCEXs(sommeExP, sommeCoeffModules)
+                                    )}
                                 </td>
                             </tr>
                         </tbody>
