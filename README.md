@@ -137,9 +137,4 @@ npm start
 
 This project is licensed under the MIT License 
 
----
-
-**Note**: This project is developed as part of the academic curriculum at ISTA NTIC SYBA. For any questions or support, please contact the development team.
-
----
 
