@@ -67,7 +67,7 @@ git clone https://github.com/Oussamma642/PFE-gestion-d-un-centre-de-formation.gi
 
 ```bash
 # Navigate to backend directory
-cd backend
+cd gestion-notes
 
 # Install PHP dependencies
 composer install
@@ -98,7 +98,7 @@ php artisan migrate
 
 ```bash
 # Navigate to frontend directory
-cd frontend
+cd react
 
 # Install dependencies
 npm install
@@ -117,7 +117,7 @@ VITE_API_BASE_URL=http://localhost:8000
 #### Start Backend Server
 ```bash
 # Navigate to backend directory
-cd backend
+cd gestion-notes
 
 # Start Laravel development server
 php artisan serve
@@ -127,7 +127,7 @@ php artisan serve
 #### Start Frontend Development Server
 ```bash
 # Navigate to frontend directory
-cd frontend
+cd react
 
 # Start React development server
 npm start
