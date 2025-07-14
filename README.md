@@ -4,17 +4,16 @@ A comprehensive grade management system designed for training centers offering t
 
 ## Table of Contents
 
+## Table of Contents
+
 - [Project Overview](#project-overview)
+- [Motivation](#motivation)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
-- [Prerequisites](#prerequisites)
 - [Installation & Setup](#installation--setup)
 - [Usage](#usage)
-- [API Documentation](#api-documentation)
-- [Project Structure](#project-structure)
-- [Contributing](#contributing)
 - [License](#license)
-- [Acknowledgements](#acknowledgements)
+
 
 ## Project Overview
 
@@ -55,16 +54,6 @@ This system streamlines data entry, grading, and results production for instruct
   - Node.js 18+ & npm 9+  
   - Composer 2+  
 
-## Prerequisites
-
-Before running this project, ensure you have the following installed:
-
-- **PHP** >= 8.1
-- **Composer** >= 2.0
-- **Node.js** >= 16.x
-- **npm** 
-- **MySQL** >= 8.0
-- **Git**
 
 ## Installation & Setup
 
@@ -109,7 +98,7 @@ php artisan migrate
 
 ```bash
 # Navigate to frontend directory
-cd ../frontend
+cd frontend
 
 # Install dependencies
 npm install
