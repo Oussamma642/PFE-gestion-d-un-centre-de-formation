@@ -26,7 +26,7 @@ A grade management system for a center that offers two‑year courses across sev
 Each stream includes:
 - Year 1 and Year 2 modules  
 - Multiple formative tests  
-- A practical exam and a theoretical exam per year  
+- A practical exam and a theoretical exam per module  
 - Automated generation of end‑of‑year performance reports
   
 This system streamlines data entry, grading, and results production for instructors and administrators.
