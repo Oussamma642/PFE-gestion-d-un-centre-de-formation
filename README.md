@@ -4,8 +4,6 @@ A comprehensive grade management system designed for training centers offering t
 
 ## Table of Contents
 
-## Table of Contents
-
 - [Project Overview](#project-overview)
 - [Motivation](#motivation)
 - [Features](#features)
